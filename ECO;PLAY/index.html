@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Eco Play</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0fbe4;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #22a652;
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-left {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+    }
+
+    .header-right span, .header-right button {
+      margin-left: 15px;
+    }
+
+    .garden-container {
+      background-color: #d6c1a5;
+      margin: 20px auto;
+      width: 90%;
+      height: 250px;
+      border-radius: 10px;
+      position: relative;
+    }
+
+    .tree, .flower {
+      position: absolute;
+      font-size: 2em;
+    }
+
+    .pine-tree {
+      left: 20%;
+      top: 50%;
+    }
+
+    .flower {
+      left: 47%;
+      top: 55%;
+    }
+
+    .oak-tree {
+      left: 70%;
+      top: 52%;
+    }
+
+    .impact {
+      width: 90%;
+      margin: 20px auto;
+    }
+
+    .impact-bar {
+      margin: 10px 0;
+    }
+
+    .bar-label {
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .bar-container {
+      background-color: #ddd;
+      border-radius: 10px;
+      height: 20px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      text-align: right;
+      line-height: 20px;
+      padding-right: 5px;
+      color: white;
+    }
+
+    .carbon { background-color: #3cb043; width: 65%; }
+    .water { background-color: #3498db; width: 40%; }
+    .energy { background-color: #f39c12; width: 80%; }
+
+    .avatars {
+      width: 90%;
+      margin: 20px auto;
+    }
+
+    .avatar-grid {
+      display: flex;
+      gap: 10px;
+    }
+
+    .avatar {
+      flex: 1;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background: white;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      box-shadow: 0 -1px 5px rgba(0,0,0,0.1);
+    }
+
+    .bottom-nav div {
+      text-align: center;
+      font-size: 0.8em;
+    }
+
+    .add-button {
+      background-color: #22a652;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      font-size: 1.5em;
+      position: absolute;
+      top: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">Eco Play</div>
+    <div class="header-right">
+      <span>120</span>
+      <button>👤</button>
+    </div>
+  </header>
+
+  <div class="garden-container">
+    <div class="tree pine-tree">🌲</div>
+    <div class="flower">🌸</div>
+    <div class="tree oak-tree">🌳</div>
+  </div>
+
+  <div class="impact">
+    <h2>Your Impact</h2>
+    <div class="impact-bar">
+      <div class="bar-label">Carbon Reduction</div>
+      <div class="bar-container"><div class="bar carbon">65%</div></div>
+    </div>
+    <div class="impact-bar">
+      <div class="bar-label">Water Saved</div>
+      <div class="bar-container"><div class="bar water">40%</div></div>
+    </div>
+    <div class="impact-bar">
+      <div class="bar-label">Energy Efficiency</div>
+      <div class="bar-container"><div class="bar energy">80%</div></div>
+    </div>
+  </div>
+
+  <div class="avatars">
+    <h2>Tree Avatars</h2>
+    <div class="avatar-grid">
+      <div class="avatar">
+        <div>🌲</div>
+        <div>Pine Tree</div>
+        <small>Unlocked</small>
+      </div>
+      <div class="avatar">
+        <div>🌳</div>
+        <div>Oak Tree</div>
+        <small>Unlocked</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div>🏠<br>Home</div>
+    <div>📊<br>Stats</div>
+    <div><button class="add-button">＋</button></div>
+    <div>🛍️<br>Shop</div>
+    <div>⚙️<br>Settings</div>
+  </div>
+
+  <script>
+    // JavaScript functionality can be expanded later (e.g., Add Eco Action, shop, etc.)
+    document.querySelector('.add-button').addEventListener('click', function () {
+      alert('Add Eco Action clicked!');
+    });
+  </script>
+</body>
+</html>
+
