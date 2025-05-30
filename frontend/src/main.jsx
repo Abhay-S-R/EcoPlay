@@ -1,7 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import './index.css'
+import './index.css' // Import your CSS styles
 import { HomePage, EcoPlayApp } from './App.jsx'
 import StatsPage from './pages/stats'
 import EcoPlayShop from './pages/shop'

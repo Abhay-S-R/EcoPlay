@@ -366,7 +366,6 @@ const AchievementItem = ({ achievement }) => (
   </div>
 );
 
-// Quick Stat Item Component
 const QuickStatItem = ({ icon, label, value }) => (
   <div className="flex items-center justify-between">
     <div className="flex items-center space-x-2">

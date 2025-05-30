@@ -63,7 +63,6 @@ const HomePage = () => {
 // Component: Dashboard
 // --------------------
 const EcoPlayApp = () => {
-  // Initialize fresh user profile
   const [userData, setUserData] = useState({
     profile: {
       name: "",

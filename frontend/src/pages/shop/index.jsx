@@ -4,7 +4,7 @@ import * as THREE from 'three';
 
 const EcoPlayShop = () => {
   const [userPoints, setUserPoints] = useState(1247);
-  const [ownedAvatars, setOwnedAvatars] = useState(new Set([1])); // User owns the first tree
+  const [ownedAvatars, setOwnedAvatars] = useState(new Set([1])); 
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [cart, setCart] = useState([]);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
