@@ -51,6 +51,8 @@ const HomePage = () => {
           <Link to="/activities" className="hover:text-green-800">Activities</Link>
           <Link to="/challenges" className="hover:text-green-800">Challenges</Link>
           <Link to="/community" className="hover:text-green-800">Community</Link>
+          <Link to="/stats" className="hover:text-green-800">Stats</Link>
+          <Link to="/shop" className="hover:text-green-800">Shop</Link>
         </nav>
       </div>
     </div>
@@ -344,6 +346,8 @@ const EcoPlayApp = () => {
               <Link to="/activities" className="text-white hover:text-green-200 font-medium">Activities</Link>
               <Link to="/challenges" className="text-white hover:text-green-200 font-medium">Challenges</Link>
               <Link to="/community" className="text-white hover:text-green-200 font-medium">Community</Link>
+              <Link to="/stats" className="text-white hover:text-green-200 font-medium">Stats</Link>
+              <Link to="/shop" className="text-white hover:text-green-200 font-medium">Shop</Link>
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold">
