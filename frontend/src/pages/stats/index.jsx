@@ -1,38 +1,157 @@
 import React, { useState, useEffect } from 'react';
 import { Leaf, TrendingUp, Calendar, CheckCircle, Target, Award, BarChart3, Clock, Flame, Star, ArrowLeft } from 'lucide-react';
+import { loadUserData } from '../../utils/storage';
+import { useNavigate } from 'react-router-dom';
 
 const StatsPage = () => {
-  const [userData, setUserData] = useState({
-    name: "EcoWarrior",
-    streakDays: 12,
-    longestStreak: 25,
-    ecoPoints: 1247,
-    level: 5,
-    totalTasksCompleted: 87,
-    weeklyTasksCompleted: 15,
-    monthlyTasksCompleted: 52,
-    consistencyScore: 78,
-    weeklyConsistency: [85, 92, 76, 88, 90, 82, 78],
-    monthlyStats: {
-      co2Saved: 45.6,
-      waterSaved: 890,
-      energySaved: 32.4,
-      treesEquivalent: 2.1
-    },
-    categoryStats: {
-      transport: { completed: 25, points: 1875 },
-      energy: { completed: 18, points: 900 },
-      water: { completed: 22, points: 1320 },
-      food: { completed: 15, points: 1125 },
-      waste: { completed: 7, points: 525 }
-    },
-    achievements: [
-      { name: "First Week", date: "2024-11-15", points: 100 },
-      { name: "Eco Commuter", date: "2024-11-20", points: 200 },
-      { name: "Water Saver", date: "2024-11-25", points: 150 },
-      { name: "Green Guardian", date: "2024-12-01", points: 300 }
-    ]
+  const navigate = useNavigate();
+  const [userData, setUserData] = useState(() => {
+    const savedData = loadUserData() || {
+      stats: {
+        currentStreak: 0,
+        longestStreak: 0,
+        totalEcoPoints: 0,
+        level: 1
+      },
+      dailyData: []
+    };
+
+    // Get today's tasks
+    const today = new Date().toISOString().split('T')[0];
+    const todayData = savedData.dailyData.find(day => day.date === today) || { tasksCompleted: [] };
+    
+    // Calculate tasks stats
+    const weekStart = new Date();
+    weekStart.setDate(weekStart.getDate() - 7);
+    const monthStart = new Date();
+    monthStart.setDate(monthStart.getDate() - 30);
+
+    const weeklyTasks = savedData.dailyData
+      .filter(day => new Date(day.date) >= weekStart)
+      .reduce((sum, day) => sum + (day.tasksCompleted?.length || 0), 0);
+
+    const monthlyTasks = savedData.dailyData
+      .filter(day => new Date(day.date) >= monthStart)
+      .reduce((sum, day) => sum + (day.tasksCompleted?.length || 0), 0);
+
+    const totalTasks = savedData.dailyData
+      .reduce((sum, day) => sum + (day.tasksCompleted?.length || 0), 0);
+
+    // Calculate category statistics from activities
+    const categoryStats = {
+      transport: { completed: 0, points: 0 },
+      energy: { completed: 0, points: 0 },
+      water: { completed: 0, points: 0 },
+      waste: { completed: 0, points: 0 }
+    };
+
+    savedData.dailyData.forEach(day => {
+      day.activities?.forEach(activity => {
+        if (categoryStats[activity.activityType]) {
+          categoryStats[activity.activityType].completed++;
+          categoryStats[activity.activityType].points += (activity.points || 0);
+        }
+      });
+    });
+
+    // Calculate monthly environmental impact
+    const monthlyStats = savedData.dailyData
+      .filter(day => new Date(day.date) >= monthStart)
+      .reduce((stats, day) => ({
+        co2Saved: stats.co2Saved + (day.co2Saved || 0),
+        waterSaved: stats.waterSaved + (day.waterSaved || 0),
+        energySaved: stats.energySaved + (day.energySaved || 0),
+        treesEquivalent: (stats.co2Saved + (day.co2Saved || 0)) / 21.7 // Average tree absorbs 21.7kg CO2 per month
+      }), {
+        co2Saved: 0,
+        waterSaved: 0,
+        energySaved: 0,
+        treesEquivalent: 0
+      });
+
+    return {
+      name: "EcoWarrior",
+      streakDays: savedData.stats.currentStreak,
+      longestStreak: savedData.stats.longestStreak,
+      ecoPoints: savedData.stats.totalEcoPoints,
+      level: savedData.stats.level,
+      categoryStats: categoryStats,
+      totalTasksCompleted: Object.values(categoryStats).reduce((sum, cat) => sum + cat.completed, 0),
+      weeklyTasksCompleted: weeklyTasks,
+      monthlyTasksCompleted: monthlyTasks,
+      consistencyScore: 78,
+      weeklyConsistency: [85, 92, 76, 88, 90, 82, 78],
+      monthlyStats: {
+        co2Saved: Number(monthlyStats.co2Saved.toFixed(1)),
+        waterSaved: Math.round(monthlyStats.waterSaved),
+        energySaved: Number(monthlyStats.energySaved.toFixed(1)),
+        treesEquivalent: Number(monthlyStats.treesEquivalent.toFixed(1))
+      },
+      achievements: [
+        { name: "First Week", date: "2024-11-15", points: 100 },
+        { name: "Eco Commuter", date: "2024-11-20", points: 200 },
+        { name: "Water Saver", date: "2024-11-25", points: 150 },
+        { name: "Green Guardian", date: "2024-12-01", points: 300 }
+      ]
+    };
   });
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedData = loadUserData();
+      if (savedData) {
+        const categoryStats = {
+          transport: { completed: 0, points: 0 },
+          energy: { completed: 0, points: 0 },
+          water: { completed: 0, points: 0 },
+          waste: { completed: 0, points: 0 }
+        };
+
+        savedData.dailyData.forEach(day => {
+          day.activities?.forEach(activity => {
+            if (categoryStats[activity.activityType]) {
+              categoryStats[activity.activityType].completed++;
+              categoryStats[activity.activityType].points += (activity.points || 0);
+            }
+          });
+        });
+
+        // Calculate monthly environmental impact
+        const monthStart = new Date();
+        monthStart.setDate(monthStart.getDate() - 30);
+        
+        const monthlyStats = savedData.dailyData
+          .filter(day => new Date(day.date) >= monthStart)
+          .reduce((stats, day) => ({
+            co2Saved: stats.co2Saved + (day.co2Saved || 0),
+            waterSaved: stats.waterSaved + (day.waterSaved || 0),
+            energySaved: stats.energySaved + (day.energySaved || 0),
+            treesEquivalent: (stats.co2Saved + (day.co2Saved || 0)) / 21.7
+          }), {
+            co2Saved: 0,
+            waterSaved: 0,
+            energySaved: 0,
+            treesEquivalent: 0
+          });
+
+        setUserData(prev => ({
+          ...prev,
+          categoryStats: categoryStats,
+          totalTasksCompleted: Object.values(categoryStats).reduce((sum, cat) => sum + cat.completed, 0),
+          monthlyStats: {
+            co2Saved: Number(monthlyStats.co2Saved.toFixed(1)),
+            waterSaved: Math.round(monthlyStats.waterSaved),
+            energySaved: Number(monthlyStats.energySaved.toFixed(1)),
+            treesEquivalent: Number(monthlyStats.treesEquivalent.toFixed(1))
+          }
+        }));
+      }
+    };
+
+    // Listen for storage changes
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -43,7 +162,10 @@ const StatsPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <button className="text-white hover:text-green-200">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="text-white hover:text-green-200"
+              >
                 <ArrowLeft className="h-6 w-6" />
               </button>
               <div className="flex items-center space-x-2">
@@ -101,7 +223,7 @@ const StatsPage = () => {
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
               <h2 className="text-2xl font-bold text-emerald-600 mb-6 flex items-center">
                 <CheckCircle className="mr-3 h-6 w-6" />
-                Tasks Completed
+                EcoTasks Completed
               </h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -302,12 +424,10 @@ const StatsCard = ({ value, label, color, icon }) => {
 
 // Category Stats Bar Component
 const CategoryStatsBar = ({ category, completed, points, total }) => {
-  const percentage = (completed / total) * 100;
   const categoryIcons = {
     transport: '🚗',
     energy: '⚡',
     water: '💧',
-    food: '🥗',
     waste: '🗑️'
   };
 
@@ -319,15 +439,6 @@ const CategoryStatsBar = ({ category, completed, points, total }) => {
           <div className="font-semibold text-gray-800 capitalize">{category}</div>
           <div className="text-sm text-gray-600">{completed} tasks • {points} points</div>
         </div>
-      </div>
-      <div className="flex items-center space-x-2">
-        <div className="w-16 bg-gray-200 rounded-full h-2">
-          <div 
-            className="bg-emerald-500 h-2 rounded-full transition-all duration-500"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-        <span className="text-sm font-semibold text-gray-700">{Math.round(percentage)}%</span>
       </div>
     </div>
   );
