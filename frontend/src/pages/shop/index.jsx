@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ShoppingCart, Crown, Star, Lock, Check, Zap, Sparkles } from 'lucide-react';
 import * as THREE from 'three';
+import { useNavigate } from 'react-router-dom';
 
 const EcoPlayShop = () => {
+  const navigate = useNavigate();
   const [userPoints, setUserPoints] = useState(1247);
   const [ownedAvatars, setOwnedAvatars] = useState(new Set([1])); 
   const [selectedAvatar, setSelectedAvatar] = useState(null);
@@ -155,7 +157,10 @@ const EcoPlayShop = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <button className="text-white hover:text-green-200 p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all">
+              <button 
+                onClick={() => navigate('/dashboard')}
+                className="text-white hover:text-green-200 p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all"
+              >
                 <ArrowLeft className="h-6 w-6" />
               </button>
               <div className="flex items-center space-x-2">
