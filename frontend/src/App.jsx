@@ -18,10 +18,14 @@ import {
   Sun,
   Settings
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getActivityDetails } from './utils/co2Calculator';
 import { saveUserData, loadUserData, clearUserData } from './utils/storage';
-
+import { TreeProvider } from './context/TreeContext';
+import EcoGarden3D from './pages/base';
+import EcoPlayShop from './pages/shop';
+import StatsPage from './pages/stats';
+component
 // --------------------
 // Component: Homepage
 // --------------------
@@ -217,6 +221,8 @@ const EcoPlayApp = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
+
+  const navigate = useNavigate();
 
   // Daily tasks data
   const dailyTasks = [
@@ -487,6 +493,7 @@ const EcoPlayApp = () => {
             <div className="hidden md:flex items-center space-x-8">
               <Link to="/stats" className="text-white hover:text-green-200 font-medium">Stats</Link>
               <Link to="/shop" className="text-white hover:text-green-200 font-medium">Shop</Link>
+              <Link to="/garden" className="text-white hover:text-green-200 font-medium">Garden</Link>
             </div>
             <div className="flex items-center space-x-4">
               <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold">
@@ -528,8 +535,7 @@ const EcoPlayApp = () => {
                     <p className="text-gray-600">
                       {userData.stats.currentStreak > 0
                         ? `You're on a ${userData.stats.currentStreak} day streak! Keep it up!`
-                        : "Ready to start your eco journey? Log your first activity!"
-                      }
+                        : "Ready to start your eco journey? Log your first activity!"}
                     </p>
                   </div>
                   <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white p-4 rounded-xl text-center shadow-lg">
@@ -1193,3 +1199,22 @@ const Notification = ({ message }) => {
 
 // Export both components
 export { HomePage, EcoPlayApp };
+
+function App() {
+  return (
+    <TreeProvider>
+      <Router>
+        <div className="App">
+          <Routes>
+            <Route path="/" element={<HomePage />} /> {/* Define the home route */}
+            <Route path="/garden" element={<EcoGarden3D />} />
+            <Route path="/shop" element={<EcoPlayShop />} />
+            <Route path="/stats" element={<StatsPage />} />
+          </Routes>
+        </div>
+      </Router>
+    </TreeProvider>
+  );
+}
+
+export default App;

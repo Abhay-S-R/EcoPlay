@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ShoppingCart, Crown, Star, Lock, Check, Zap, Sparkles } from 'lucide-react';
 import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
+import { useTreeContext } from '../../context/TreeContext';
 
 const EcoPlayShop = () => {
+  console.log("Rendering EcoPlayShop");
   const navigate = useNavigate();
+  const { addTree } = useTreeContext();
   const [userPoints, setUserPoints] = useState(1247);
   const [ownedAvatars, setOwnedAvatars] = useState(new Set([1])); 
   const [selectedAvatar, setSelectedAvatar] = useState(null);
@@ -136,6 +139,7 @@ const EcoPlayShop = () => {
     if (userPoints >= avatar.price && !ownedAvatars.has(avatar.id)) {
       setUserPoints(prev => prev - avatar.price);
       setOwnedAvatars(prev => new Set([...prev, avatar.id]));
+      addTree(avatar.id);
       showNotification(`🌳 ${avatar.name} purchased successfully! Welcome to your garden!`);
       setShowPurchaseModal(false);
     } else if (ownedAvatars.has(avatar.id)) {
