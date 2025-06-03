@@ -25,7 +25,7 @@ import { TreeProvider } from './context/TreeContext';
 import EcoGarden3D from './pages/base';
 import EcoPlayShop from './pages/shop';
 import StatsPage from './pages/stats';
-component
+
 // --------------------
 // Component: Homepage
 // --------------------
