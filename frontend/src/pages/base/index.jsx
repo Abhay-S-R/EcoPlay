@@ -430,7 +430,7 @@ const EcoGarden3D = () =>
     const newTree = {
       id: Date.now(),
       treeType: selectedTreeType,
-      treeData,
+      treeData, // Ensure treeData is assigned here
       gridX,
       gridZ,
       plantedAt: new Date(),
@@ -866,7 +866,7 @@ const EcoGarden3D = () =>
             <div className="space-y-1 text-xs max-h-32 overflow-y-auto">
               {placedTrees.slice(-5).reverse().map((tree) => (
                 <div key={tree.id} className="flex justify-between items-center">
-                  <span className="truncate">{tree.treeData.name}</span>
+                  <span className="truncate">{tree.treeData?.name || 'Unknown Tree'}</span>
                   {selectedTool === 'delete' && (
                     <button
                       onClick={() => removeTree(tree.id)}
