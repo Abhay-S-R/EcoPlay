@@ -3,13 +3,26 @@ import { ArrowLeft, ShoppingCart, Crown, Star, Lock, Check, Zap, Sparkles } from
 import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
 import { useTreeContext } from '../../context/TreeContext';
+import { loadUserData, saveUserData } from '../../utils/storage'; // update import
 
 const EcoPlayShop = () => {
   console.log("Rendering EcoPlayShop");
   const navigate = useNavigate();
   const { addTree } = useTreeContext();
-  const [userPoints, setUserPoints] = useState(1247);
-  const [ownedAvatars, setOwnedAvatars] = useState(new Set([1])); 
+  const [userPoints, setUserPoints] = useState(() => {
+    const userData = loadUserData();
+    return userData?.stats?.totalEcoPoints || 0;
+  });
+  // Load owned avatars from localStorage
+  const [ownedAvatars, setOwnedAvatars] = useState(() => {
+    const userData = loadUserData();
+    // Store owned avatar ids in userData.shopOwnedAvatars (array)
+    if (userData && Array.isArray(userData.shopOwnedAvatars)) {
+      return new Set(userData.shopOwnedAvatars);
+    }
+    // If not present, default to empty set
+    return new Set([]);
+  });
   const [selectedAvatar, setSelectedAvatar] = useState(null);
   const [cart, setCart] = useState([]);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
@@ -25,7 +38,7 @@ const EcoPlayShop = () => {
       rarity: "common",
       level: 1,
       type: "sprout",
-      owned: true,
+      // owned: true, // Remove this property
       stats: { growth: 1, efficiency: 1, beauty: 1 }
     },
     {
@@ -136,12 +149,35 @@ const EcoPlayShop = () => {
   };
 
   const purchaseAvatar = (avatar) => {
+    const userData = loadUserData() || {};
+    if (!Array.isArray(userData.shopOwnedAvatars)) {
+      userData.shopOwnedAvatars = [];
+    }
+    if (avatar.price === 0 && !ownedAvatars.has(avatar.id)) {
+      const updated = new Set([...ownedAvatars, avatar.id]);
+      setOwnedAvatars(updated);
+      userData.shopOwnedAvatars = Array.from(updated);
+      saveUserData(userData);
+      addTree(avatar.id);
+      showNotification(`🌱 ${avatar.name} claimed for free!`);
+      setShowPurchaseModal(false);
+      window.dispatchEvent(new Event('storage'));
+      return;
+    }
     if (userPoints >= avatar.price && !ownedAvatars.has(avatar.id)) {
+      // Update userData.stats.totalEcoPoints and save to storage
+      if (userData.stats) {
+        userData.stats.totalEcoPoints -= avatar.price;
+      }
+      const updated = new Set([...ownedAvatars, avatar.id]);
       setUserPoints(prev => prev - avatar.price);
-      setOwnedAvatars(prev => new Set([...prev, avatar.id]));
+      setOwnedAvatars(updated);
+      userData.shopOwnedAvatars = Array.from(updated);
+      saveUserData(userData);
       addTree(avatar.id);
       showNotification(`🌳 ${avatar.name} purchased successfully! Welcome to your garden!`);
       setShowPurchaseModal(false);
+      window.dispatchEvent(new Event('storage'));
     } else if (ownedAvatars.has(avatar.id)) {
       showNotification('You already own this tree avatar!', 'info');
     } else {
@@ -153,6 +189,35 @@ const EcoPlayShop = () => {
     setSelectedAvatar(avatar);
     setShowPurchaseModal(true);
   };
+
+  // Save owned avatars to localStorage whenever they change
+  useEffect(() => {
+    const userData = loadUserData() || {};
+    userData.shopOwnedAvatars = Array.from(ownedAvatars);
+    saveUserData(userData);
+    // Notify other tabs/pages
+    window.dispatchEvent(new Event('storage'));
+  }, [ownedAvatars]);
+
+  // Listen for changes in localStorage and update ownedAvatars accordingly
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const userData = loadUserData();
+      if (userData) {
+        setUserPoints(userData.stats?.totalEcoPoints || 0);
+        setOwnedAvatars(new Set(userData.shopOwnedAvatars || []));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Calculate stats based on ownedAvatars
+  const treesOwned = ownedAvatars.size;
+  const rareTreesOwned = treeAvatars.filter(
+    t => (t.rarity === 'epic' || t.rarity === 'legendary') && ownedAvatars.has(t.id)
+  ).length;
+  const availableTrees = treeAvatars.length - treesOwned;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50">
@@ -199,16 +264,16 @@ const EcoPlayShop = () => {
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-8 border border-green-100">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="text-center">
-              <div className="text-3xl font-bold text-emerald-600">{ownedAvatars.size}</div>
+              <div className="text-3xl font-bold text-emerald-600">{treesOwned}</div>
               <div className="text-gray-600">Trees Owned</div>
             </div>
             <div className="text-center">
-              <div className="text-3xl font-bold text-blue-600">{treeAvatars.length - ownedAvatars.size}</div>
+              <div className="text-3xl font-bold text-blue-600">{availableTrees}</div>
               <div className="text-gray-600">Available</div>
             </div>
             <div className="text-center">
               <div className="text-3xl font-bold text-purple-600">
-                {treeAvatars.filter(t => t.rarity === 'epic' || t.rarity === 'legendary').filter(t => ownedAvatars.has(t.id)).length}
+                {rareTreesOwned}
               </div>
               <div className="text-gray-600">Rare Trees</div>
             </div>
@@ -745,9 +810,11 @@ const TreeAvatarCard = ({ avatar, isOwned, canPurchase, onPurchase, rarityColor,
           <button
             onClick={onPurchase}
             className={`w-full py-3 px-4 rounded-lg font-bold transition-all ${
-              canPurchase
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl'
-                : 'bg-gray-200 text-gray-500 cursor-not-allowed'
+              avatar.price === 0
+                ? 'bg-emerald-400 hover:bg-emerald-500 text-white shadow-lg hover:shadow-xl'
+                : canPurchase
+                  ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-lg hover:shadow-xl'
+                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
             {avatar.price === 0 ? 'Free' : `${avatar.price.toLocaleString()} EcoPoints`}
