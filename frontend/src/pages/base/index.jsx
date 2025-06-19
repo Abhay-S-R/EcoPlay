@@ -69,7 +69,7 @@ const EcoGarden3D = () => {
       });
       // Update state
       setPlacedTrees(prev => prev.filter(tree => tree.id !== treeId));
-      setTreeCount(prev => prev - 1);
+      setTreeCount(prev => Math.max(prev - 1, 0)); // Prevent negative count
     }
   };
 
@@ -106,7 +106,7 @@ const EcoGarden3D = () => {
     // Ground
     const groundGeometry = new THREE.PlaneGeometry(20, 20, 40, 40);
     const groundMaterial = new THREE.MeshStandardMaterial({ 
-      color: 0x90EE90,
+      color: 0x7cfc8a, // Restore to a less bright green (previously 0x90EE90)
       side: THREE.DoubleSide 
     });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
@@ -239,17 +239,94 @@ const EcoGarden3D = () => {
     raycaster.setFromCamera(mouse, cameraRef.current);
 
     const treeObjects = placedTrees.map(tree => tree.mesh);
-    const intersects = raycaster.intersectObjects(treeObjects);
+    const intersects = raycaster.intersectObjects(treeObjects, true);
 
     if (intersects.length > 0) {
-      const selectedTree = placedTrees.find(
-        tree => tree.mesh === intersects[0].object.parent
-      );
-      if (selectedTree) {
-        handleDeleteTree(selectedTree.id);
+      // Find the parent group (tree mesh) if the intersected object is a child
+      const intersectedMesh = intersects[0].object;
+      const parentTree = placedTrees.find(tree => {
+        // Check if the intersected object is the tree mesh or a child of it
+        return tree.mesh === intersectedMesh || tree.mesh.children.includes(intersectedMesh);
+      });
+      if (parentTree) {
+        handleDeleteTree(parentTree.id);
       }
     }
   };
+
+  // Save garden to localStorage (called automatically)
+  const saveGarden = (trees) => {
+    const gardenData = trees.map(tree => ({
+      typeId: tree.type.id,
+      position: { x: tree.position.x, y: tree.position.y, z: tree.position.z }
+    }));
+    localStorage.setItem('ecoplay_garden', JSON.stringify(gardenData));
+  };
+
+  // Load garden from localStorage
+  const loadGarden = () => {
+    const data = localStorage.getItem('ecoplay_garden');
+    if (!data) return;
+    try {
+      const gardenData = JSON.parse(data);
+      // Remove existing trees from scene
+      placedTrees.forEach(tree => {
+        sceneRef.current.remove(tree.mesh);
+        tree.mesh.traverse((object) => {
+          if (object instanceof THREE.Mesh) {
+            object.geometry.dispose();
+            object.material.dispose();
+          }
+        });
+      });
+      // Add loaded trees
+      const loadedTrees = [];
+      gardenData.forEach(item => {
+        const treeType = {
+          id: item.typeId,
+          name: '',
+          color: getTreeColor(item.typeId)
+        };
+        const mesh = createTreeMesh(treeType);
+        mesh.position.set(item.position.x, item.position.y, item.position.z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.userData = { isTree: true, treeId: Date.now() + Math.random(), treeType: item.typeId };
+        sceneRef.current.add(mesh);
+        loadedTrees.push({
+          id: mesh.userData.treeId,
+          type: treeType,
+          position: { ...item.position },
+          mesh
+        });
+      });
+      setPlacedTrees(loadedTrees);
+      setTreeCount(loadedTrees.length);
+    } catch (e) {
+      // ignore errors
+    }
+  };
+
+  // Load garden on mount and whenever the component is shown (handle SPA navigation)
+  useEffect(() => {
+    loadGarden();
+    // Listen for visibility change (tab focus) to reload garden if needed
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        loadGarden();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+    // eslint-disable-next-line
+  }, []);
+
+  // Autosave garden whenever placedTrees changes
+  useEffect(() => {
+    saveGarden(placedTrees);
+  }, [placedTrees]);
 
   useEffect(() => {
     const canvas = rendererRef.current?.domElement;
@@ -273,7 +350,7 @@ const EcoGarden3D = () => {
 
       {/* Back to Menu Button */}
       <button
-        onClick={() => navigate('/')}
+        onClick={() => navigate('/dashboard')}
         className="absolute top-4 left-4 bg-white/90 hover:bg-white text-gray-800 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
       >
         <ArrowLeft size={20} />
