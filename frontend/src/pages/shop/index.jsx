@@ -4,11 +4,11 @@ import * as THREE from 'three';
 import { useNavigate } from 'react-router-dom';
 import { useTreeContext } from '../../context/TreeContext';
 import { loadUserData, saveUserData } from '../../utils/storage'; // update import
+import { treeData, rarityColors, rarityBorders } from '../../utils/treeData';
 
 const EcoPlayShop = () => {
-  console.log("Rendering EcoPlayShop");
   const navigate = useNavigate();
-  const { addTree } = useTreeContext();
+  const { addTree, refreshOwnedTrees } = useTreeContext();
   const [userPoints, setUserPoints] = useState(() => {
     const userData = loadUserData();
     return userData?.stats?.totalEcoPoints || 0;
@@ -28,114 +28,14 @@ const EcoPlayShop = () => {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
-  // Tree avatar data
-  const treeAvatars = [
-    {
-      id: 1,
-      name: "Baby Sprout",
-      description: "Your first tiny green companion",
-      price: 0,
-      rarity: "common",
-      level: 1,
-      type: "sprout",
-      // owned: true, // Remove this property
-      stats: { growth: 1, efficiency: 1, beauty: 1 }
-    },
-    {
-      id: 2,
-      name: "Mighty Oak",
-      description: "Majestic oak with broad canopy and acorns",
-      price: 500,
-      rarity: "common",
-      level: 2,
-      type: "oak",
-      stats: { growth: 2, efficiency: 3, beauty: 2 }
-    },
-    {
-      id: 3,
-      name: "Cherry Blossom",
-      description: "Delicate pink flowers bloom in spring beauty",
-      price: 750,
-      rarity: "rare",
-      level: 3,
-      type: "cherry",
-      stats: { growth: 2, efficiency: 2, beauty: 4 }
-    },
-    {
-      id: 4,
-      name: "Weeping Willow",
-      description: "Graceful drooping branches dance in the breeze",
-      price: 1000,
-      rarity: "rare",
-      level: 4,
-      type: "willow",
-      stats: { growth: 3, efficiency: 3, beauty: 3 }
-    },
-    {
-      id: 5,
-      name: "Autumn Maple",
-      description: "Fiery red and orange leaves of fall",
-      price: 1200,
-      rarity: "rare",
-      level: 5,
-      type: "maple",
-      stats: { growth: 3, efficiency: 2, beauty: 4 }
-    },
-    {
-      id: 6,
-      name: "Golden Pine",
-      description: "Tall evergreen with golden needles and pine cones",
-      price: 1500,
-      rarity: "epic",
-      level: 6,
-      type: "pine",
-      stats: { growth: 4, efficiency: 4, beauty: 3 }
-    },
-    {
-      id: 7,
-      name: "Rainbow Eucalyptus",
-      description: "Mystical bark with rainbow colors",
-      price: 2000,
-      rarity: "epic",
-      level: 7,
-      type: "eucalyptus",
-      stats: { growth: 4, efficiency: 3, beauty: 5 }
-    },
-    {
-      id: 8,
-      name: "Crystal Bonsai",
-      description: "Miniature crystalline tree with glowing gems",
-      price: 2500,
-      rarity: "legendary",
-      level: 8,
-      type: "crystal",
-      stats: { growth: 5, efficiency: 5, beauty: 5 }
-    },
-    {
-      id: 9,
-      name: "Phoenix Palm",
-      description: "Legendary palm with fiery golden fronds",
-      price: 3000,
-      rarity: "legendary",
-      level: 9,
-      type: "phoenix",
-      stats: { growth: 5, efficiency: 4, beauty: 5 }
-    }
-  ];
+  // Use unified tree data instead of local treeAvatars
+  const treeAvatars = treeData;
 
-  const rarityColors = {
-    common: 'from-gray-400 to-gray-600',
-    rare: 'from-blue-400 to-blue-600',
-    epic: 'from-purple-400 to-purple-600',
-    legendary: 'from-yellow-400 to-orange-500'
-  };
-
-  const rarityBorders = {
-    common: 'border-gray-300',
-    rare: 'border-blue-300',
-    epic: 'border-purple-300',
-    legendary: 'border-yellow-300'
-  };
+  // Refresh TreeContext when shop loads
+  useEffect(() => {
+    refreshOwnedTrees();
+    
+  }, [refreshOwnedTrees, ownedAvatars]);
 
   // Notification system
   const showNotification = (message, type = 'success') => {
@@ -153,6 +53,7 @@ const EcoPlayShop = () => {
     if (!Array.isArray(userData.shopOwnedAvatars)) {
       userData.shopOwnedAvatars = [];
     }
+    
     if (avatar.price === 0 && !ownedAvatars.has(avatar.id)) {
       const updated = new Set([...ownedAvatars, avatar.id]);
       setOwnedAvatars(updated);
@@ -161,7 +62,8 @@ const EcoPlayShop = () => {
       addTree(avatar.id);
       showNotification(`🌱 ${avatar.name} claimed for free!`);
       setShowPurchaseModal(false);
-      window.dispatchEvent(new Event('storage'));
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event('userDataChanged'));
       return;
     }
     if (userPoints >= avatar.price && !ownedAvatars.has(avatar.id)) {
@@ -177,7 +79,8 @@ const EcoPlayShop = () => {
       addTree(avatar.id);
       showNotification(`🌳 ${avatar.name} purchased successfully! Welcome to your garden!`);
       setShowPurchaseModal(false);
-      window.dispatchEvent(new Event('storage'));
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new Event('userDataChanged'));
     } else if (ownedAvatars.has(avatar.id)) {
       showNotification('You already own this tree avatar!', 'info');
     } else {
@@ -903,4 +806,3 @@ const Notification = ({ message, type = 'success' }) => {
 };
 
 export default EcoPlayShop;
-
