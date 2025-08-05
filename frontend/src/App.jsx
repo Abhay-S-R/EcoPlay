@@ -18,7 +18,7 @@ import {
   Sun,
   Settings
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { getActivityDetails } from './utils/co2Calculator';
 import { saveUserData, loadUserData, clearUserData } from './utils/storage';
 import { TreeProvider } from './context/TreeContext';
@@ -1207,6 +1207,7 @@ function App() {
         <div className="App">
           <Routes>
             <Route path="/" element={<HomePage />} /> {/* Define the home route */}
+            <Route path="/dashboard" element={<EcoPlayApp />} /> {/* Add dashboard route */}
             <Route path="/garden" element={<EcoGarden3D />} />
             <Route path="/shop" element={<EcoPlayShop />} />
             <Route path="/stats" element={<StatsPage />} />
