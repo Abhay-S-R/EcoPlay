@@ -26,6 +26,7 @@ const TreeSelector = ({ onSelect, onClose }) => {
   // Get all available trees and filter by owned ones
   const allTrees = getAllTrees();
   const availableTrees = allTrees.filter(tree => ownedTrees.includes(tree.id));
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Refresh owned trees when component mounts
   useEffect(() => {
@@ -40,18 +41,11 @@ const TreeSelector = ({ onSelect, onClose }) => {
       if (userData && Array.isArray(userData.shopOwnedAvatars)) {
         setOwnedTrees(userData.shopOwnedAvatars);
       }
+      setIsInitialized(true);
     }, 100);
     
     return () => clearTimeout(timer);
   }, []);
-
-  // Force refresh every time the component renders
-  useEffect(() => {
-    const userData = loadUserData();
-    if (userData && Array.isArray(userData.shopOwnedAvatars)) {
-      setOwnedTrees(userData.shopOwnedAvatars);
-    }
-  });
 
   const createTreeMesh = (treeData) => {
     const treeGroup = new THREE.Group();
@@ -439,18 +433,33 @@ const TreeSelector = ({ onSelect, onClose }) => {
   };
 
   useEffect(() => {
+    // Don't initialize scenes until data is loaded
+    if (!isInitialized || availableTrees.length === 0) return;
+
     // Cleanup function to clear previous scenes
     const cleanup = () => {
       scenesRef.current.forEach(sceneData => {
         if (sceneData) {
           const { renderer, controls, animationId } = sceneData;
-          cancelAnimationFrame(animationId);
+          if (animationId) {
+            cancelAnimationFrame(animationId);
+          }
           controls?.dispose();
-          renderer?.dispose();
+          if (renderer) {
+            renderer.dispose();
+            renderer.forceContextLoss();
+            const canvas = renderer.domElement;
+            if (canvas && canvas.parentNode) {
+              canvas.parentNode.removeChild(canvas);
+            }
+          }
         }
       });
       scenesRef.current = [];
     };
+
+    // Clear any existing scenes first
+    cleanup();
 
     // Clear any existing content
     previewRefs.current.forEach(container => {
@@ -468,11 +477,14 @@ const TreeSelector = ({ onSelect, onClose }) => {
       const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000); // Reduced FOV from 75 to 45
       const renderer = new THREE.WebGLRenderer({ 
         antialias: true, 
-        alpha: true 
+        alpha: true,
+        preserveDrawingBuffer: false,
+        powerPreference: "high-performance"
       });
       
       renderer.setSize(200, 200);
       renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
 
       // Camera setup - Moved further back and up for better view
@@ -514,7 +526,7 @@ const TreeSelector = ({ onSelect, onClose }) => {
 
     // Cleanup on unmount
     return cleanup;
-  }, [availableTrees]); // Add availableTrees as dependency
+  }, [isInitialized, availableTrees.length]); // Only depend on length to avoid unnecessary re-renders
 
   if (availableTrees.length === 0) {
     return (
@@ -576,6 +588,5 @@ const TreeSelector = ({ onSelect, onClose }) => {
     </div>
   );
 };
-
 
 export default TreeSelector;
