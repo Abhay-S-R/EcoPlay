@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, Moon, Sun, TreePine, Globe, Users, Badge, CheckCircle } from 'lucide-react';
+import { Leaf, Moon, Sun, TreePine, Globe, Users, Badge, CircleCheck as CheckCircle } from 'lucide-react';
 
 const FeatureCard = ({ icon, title, description }) => {
   const darkMode = document.documentElement.classList.contains('dark');

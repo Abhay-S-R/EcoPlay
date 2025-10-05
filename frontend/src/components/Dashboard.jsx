@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, CheckCircle, Trophy, Leaf, Droplets, Zap, TrendingUp, User, Target, Settings } from 'lucide-react';
+import { Plus, CircleCheck as CheckCircle, Trophy, Leaf, Droplets, Zap, TrendingUp, User, Target, Settings } from 'lucide-react';
 import { getActivityDetails } from '../utils/co2Calculator';
 import { saveUserData, loadUserData } from '../utils/storage';
 import { ProfileSetupModal } from './modals/ProfileSetupModal';
