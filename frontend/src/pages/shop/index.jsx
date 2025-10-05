@@ -35,7 +35,7 @@ const EcoPlayShop = () => {
   useEffect(() => {
     refreshOwnedTrees();
     
-  }, [refreshOwnedTrees, ownedAvatars]);
+  }, []);
 
   // Notification system
   const showNotification = (message, type = 'success') => {
@@ -98,21 +98,19 @@ const EcoPlayShop = () => {
     const userData = loadUserData() || {};
     userData.shopOwnedAvatars = Array.from(ownedAvatars);
     saveUserData(userData);
-    // Notify other tabs/pages
-    window.dispatchEvent(new Event('storage'));
   }, [ownedAvatars]);
 
-  // Listen for changes in localStorage and update ownedAvatars accordingly
+  // Listen for custom user data changes and update ownedAvatars accordingly
   useEffect(() => {
-    const handleStorageChange = () => {
+    const handleUserDataChanged = () => {
       const userData = loadUserData();
       if (userData) {
         setUserPoints(userData.stats?.totalEcoPoints || 0);
         setOwnedAvatars(new Set(userData.shopOwnedAvatars || []));
       }
     };
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener('userDataChanged', handleUserDataChanged);
+    return () => window.removeEventListener('userDataChanged', handleUserDataChanged);
   }, []);
 
   // Calculate stats based on ownedAvatars

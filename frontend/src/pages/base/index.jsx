@@ -29,7 +29,8 @@ const EcoGarden3D = () => {
   // Refresh owned trees when component mounts
   useEffect(() => {
     refreshOwnedTrees();
-  }, [refreshOwnedTrees]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const createTreeMesh = (treeType) => {
     const treeGroup = new THREE.Group();
