@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, ShoppingCart, Crown, Star, Lock, Check, Zap, Sparkles } from 'lucide-react';
 import * as THREE from 'three';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTreeContext } from '../../context/TreeContext';
 import { loadUserData, saveUserData } from '../../utils/storage'; // update import
 import { treeData, rarityColors, rarityBorders } from '../../utils/treeData';
@@ -129,12 +129,12 @@ const EcoPlayShop = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
-              <button 
-                onClick={() => navigate('/dashboard')}
+              <Link 
+                to="/dashboard"
                 className="text-white hover:text-green-200 p-2 rounded-lg hover:bg-white hover:bg-opacity-10 transition-all"
               >
                 <ArrowLeft className="h-6 w-6" />
-              </button>
+              </Link>
               <div className="flex items-center space-x-2">
                 <ShoppingCart className="h-8 w-8 text-white" />
                 <span className="text-2xl font-bold text-white">Tree Shop</span>

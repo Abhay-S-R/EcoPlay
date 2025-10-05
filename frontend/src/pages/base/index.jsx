@@ -4,7 +4,7 @@ import { useTreeContext } from '../../context/TreeContext';
 import TreeSelector from '../../components/TreeSelector';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ArrowLeft, Home, Sparkles, Crown, TreePine, Plus, Trash2, Eye, RotateCw } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { getTreeById } from '../../utils/treeData';
 
 const EcoGarden3D = () => {
@@ -714,13 +714,13 @@ const EcoGarden3D = () => {
       <div ref={mountRef} className="w-full h-full" />
 
       {/* Back to Menu Button */}
-      <button
-        onClick={() => navigate('/dashboard')}
+      <Link
+        to="/dashboard"
         className="absolute top-4 left-4 bg-white/90 hover:bg-white text-gray-800 px-4 py-2 rounded-lg shadow-lg flex items-center gap-2"
       >
         <ArrowLeft size={20} />
         Back to Menu
-      </button>
+      </Link>
 
       {/* Tree Counter */}
       <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-lg p-4">
