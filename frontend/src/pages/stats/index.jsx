@@ -69,6 +69,38 @@ const StatsPage = () => {
         treesEquivalent: 0
       });
 
+    // Calculate consistency score - percentage of days with activity in the last 30 days
+    const last30DaysData = savedData.dailyData
+      .filter(day => new Date(day.date) >= monthStart);
+
+    const daysWithActivity = last30DaysData.filter(day =>
+      (day.activities?.length > 0 || day.tasksCompleted?.length > 0)
+    ).length;
+
+    const totalDaysInPeriod = Math.min(30, Math.max(1, last30DaysData.length));
+    const consistencyScore = Math.round((daysWithActivity / totalDaysInPeriod) * 100);
+
+    // Calculate weekly consistency - last 7 days
+    const weeklyConsistency = [];
+    for (let i = 6; i >= 0; i--) {
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() - i);
+      const dateString = targetDate.toISOString().split('T')[0];
+
+      const dayData = savedData.dailyData.find(day => day.date === dateString);
+      const hasActivity = dayData && (dayData.activities?.length > 0 || dayData.tasksCompleted?.length > 0);
+      const activitiesCount = dayData ? (dayData.activities?.length || 0) + (dayData.tasksCompleted?.length || 0) : 0;
+
+      // Scale: 0 activities = 0%, 1-2 = 40%, 3-4 = 70%, 5+ = 100%
+      let dayScore = 0;
+      if (activitiesCount === 0) dayScore = 0;
+      else if (activitiesCount <= 2) dayScore = 40;
+      else if (activitiesCount <= 4) dayScore = 70;
+      else dayScore = 100;
+
+      weeklyConsistency.push(dayScore);
+    }
+
     return {
       name: "EcoWarrior",
       streakDays: savedData.stats.currentStreak,
@@ -79,8 +111,8 @@ const StatsPage = () => {
       totalTasksCompleted: Object.values(categoryStats).reduce((sum, cat) => sum + cat.completed, 0),
       weeklyTasksCompleted: weeklyTasks,
       monthlyTasksCompleted: monthlyTasks,
-      consistencyScore: 78,
-      weeklyConsistency: [85, 92, 76, 88, 90, 82, 78],
+      consistencyScore: consistencyScore,
+      weeklyConsistency: weeklyConsistency,
       monthlyStats: {
         co2Saved: Number(monthlyStats.co2Saved.toFixed(1)),
         waterSaved: Math.round(monthlyStats.waterSaved),
@@ -119,7 +151,7 @@ const StatsPage = () => {
         // Calculate monthly environmental impact
         const monthStart = new Date();
         monthStart.setDate(monthStart.getDate() - 30);
-        
+
         const monthlyStats = savedData.dailyData
           .filter(day => new Date(day.date) >= monthStart)
           .reduce((stats, day) => ({
@@ -134,10 +166,42 @@ const StatsPage = () => {
             treesEquivalent: 0
           });
 
+        // Recalculate consistency score
+        const last30DaysData = savedData.dailyData
+          .filter(day => new Date(day.date) >= monthStart);
+
+        const daysWithActivity = last30DaysData.filter(day =>
+          (day.activities?.length > 0 || day.tasksCompleted?.length > 0)
+        ).length;
+
+        const totalDaysInPeriod = Math.min(30, Math.max(1, last30DaysData.length));
+        const consistencyScore = Math.round((daysWithActivity / totalDaysInPeriod) * 100);
+
+        // Recalculate weekly consistency
+        const weeklyConsistency = [];
+        for (let i = 6; i >= 0; i--) {
+          const targetDate = new Date();
+          targetDate.setDate(targetDate.getDate() - i);
+          const dateString = targetDate.toISOString().split('T')[0];
+
+          const dayData = savedData.dailyData.find(day => day.date === dateString);
+          const activitiesCount = dayData ? (dayData.activities?.length || 0) + (dayData.tasksCompleted?.length || 0) : 0;
+
+          let dayScore = 0;
+          if (activitiesCount === 0) dayScore = 0;
+          else if (activitiesCount <= 2) dayScore = 40;
+          else if (activitiesCount <= 4) dayScore = 70;
+          else dayScore = 100;
+
+          weeklyConsistency.push(dayScore);
+        }
+
         setUserData(prev => ({
           ...prev,
           categoryStats: categoryStats,
           totalTasksCompleted: Object.values(categoryStats).reduce((sum, cat) => sum + cat.completed, 0),
+          consistencyScore: consistencyScore,
+          weeklyConsistency: weeklyConsistency,
           monthlyStats: {
             co2Saved: Number(monthlyStats.co2Saved.toFixed(1)),
             waterSaved: Math.round(monthlyStats.waterSaved),
@@ -344,14 +408,16 @@ const StatsPage = () => {
               {/* Weekly Consistency Chart */}
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold text-gray-700">Weekly Consistency</h3>
-                <div className="flex justify-between items-end h-20 bg-gray-50 rounded-lg p-3">
+                <div className="flex justify-between items-end h-24 bg-gray-50 rounded-lg p-3 gap-1">
                   {userData.weeklyConsistency.map((value, index) => (
-                    <div key={index} className="flex flex-col items-center space-y-1">
-                      <div 
-                        className="bg-emerald-500 rounded-t w-6 transition-all duration-500"
-                        style={{ height: `${(value / 100) * 60}px` }}
-                      ></div>
-                      <div className="text-xs text-gray-600">{weekDays[index]}</div>
+                    <div key={index} className="flex flex-col items-center justify-end flex-1 space-y-1 h-full">
+                      <div className="w-full flex flex-col justify-end items-center flex-1">
+                        <div
+                          className="bg-emerald-500 rounded-t w-full max-w-[24px] transition-all duration-500"
+                          style={{ height: `${Math.min(value, 100)}%` }}
+                        ></div>
+                      </div>
+                      <div className="text-xs text-gray-600 whitespace-nowrap">{weekDays[index]}</div>
                     </div>
                   ))}
                 </div>
