@@ -5,7 +5,7 @@ export const saveUserData = (userData) => {
   try {
     const trimmedData = {
       ...userData,
-      dailyData: userData.dailyData
+      dailyData: (userData.dailyData || [])
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, MAX_DAYS_TO_KEEP)
     };

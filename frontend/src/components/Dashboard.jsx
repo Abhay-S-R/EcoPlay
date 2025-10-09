@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, CircleCheck as CheckCircle, Trophy, Leaf, Droplets, Zap, TrendingUp, User, Target, Settings } from 'lucide-react';
 import { getActivityDetails } from '../utils/co2Calculator';
 import { saveUserData, loadUserData } from '../utils/storage';
+import { checkAndClaimAchievements } from '../utils/achievements';
 import { ProfileSetupModal } from './modals/ProfileSetupModal';
 import { ActivityModal } from './modals/ActivityModal';
 import { SettingsModal } from './modals/SettingsModal';
@@ -55,7 +56,27 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (userData.profile.isProfileComplete) {
-      saveUserData(userData);
+      // Check for new achievements BEFORE saving
+      const newAchievements = checkAndClaimAchievements(userData);
+      
+      if (newAchievements.length > 0) {
+        // Update state with new achievements
+        setUserData(prev => ({
+          ...prev,
+          achievements: [...(prev.achievements || []), ...newAchievements]
+        }));
+        
+        // Show notifications for each new achievement
+        newAchievements.forEach(achievement => {
+          showNotification(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.points} points`);
+        });
+        
+        // Dispatch event for other components
+        window.dispatchEvent(new Event('userDataChanged'));
+      } else {
+        // Only save if no new achievements (to avoid duplicate saves)
+        saveUserData(userData);
+      }
     }
   }, [userData]);
 

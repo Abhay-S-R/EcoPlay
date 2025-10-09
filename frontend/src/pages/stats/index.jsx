@@ -5,15 +5,20 @@ import { useNavigate } from 'react-router-dom';
 
 const StatsPage = () => {
   const navigate = useNavigate();
+  
   const [userData, setUserData] = useState(() => {
-    const savedData = loadUserData() || {
+    const raw = loadUserData() || {};
+    const savedData = {
       stats: {
         currentStreak: 0,
         longestStreak: 0,
         totalEcoPoints: 0,
-        level: 1
+        level: 1,
+        ...(raw.stats || {})
       },
-      dailyData: []
+      dailyData: raw.dailyData || [],
+      achievements: raw.achievements || [],
+      shopOwnedAvatars: raw.shopOwnedAvatars || []
     };
 
     // Get today's tasks
@@ -119,12 +124,7 @@ const StatsPage = () => {
         energySaved: Number(monthlyStats.energySaved.toFixed(1)),
         treesEquivalent: Number(monthlyStats.treesEquivalent.toFixed(1))
       },
-      achievements: [
-        { name: "First Week", date: "2024-11-15", points: 100 },
-        { name: "Eco Commuter", date: "2024-11-20", points: 200 },
-        { name: "Water Saver", date: "2024-11-25", points: 150 },
-        { name: "Green Guardian", date: "2024-12-01", points: 300 }
-      ]
+      recentAchievements: (savedData.achievements || []).slice(0, 5).reverse()
     };
   });
 
@@ -432,9 +432,16 @@ const StatsPage = () => {
               </h2>
               
               <div className="space-y-3">
-                {userData.achievements.map((achievement, index) => (
-                  <AchievementItem key={index} achievement={achievement} />
-                ))}
+                {userData.recentAchievements && userData.recentAchievements.length > 0 ? (
+                  userData.recentAchievements.map((achievement, index) => (
+                    <AchievementItem key={achievement.id || index} achievement={achievement} />
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    <p>No achievements yet!</p>
+                    <p className="text-sm mt-2">Complete eco-tasks to unlock achievements.</p>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -449,7 +456,7 @@ const StatsPage = () => {
                 <QuickStatItem
                   icon="📈"
                   label="Average Daily Points"
-                  value={Math.round(userData.ecoPoints / userData.streakDays)}
+                  value={userData.streakDays > 0 ? Math.round(userData.ecoPoints / userData.streakDays) : 0}
                 />
                 <QuickStatItem
                   icon="🎯"
@@ -534,7 +541,7 @@ const AchievementItem = ({ achievement }) => (
       <Star className="h-5 w-5 text-yellow-500" />
       <div>
         <div className="font-semibold text-gray-800">{achievement.name}</div>
-        <div className="text-sm text-gray-600">{achievement.date}</div>
+        <div className="text-sm text-gray-600">{achievement.dateEarned || achievement.date}</div>
       </div>
     </div>
     <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-lg text-xs font-semibold">
