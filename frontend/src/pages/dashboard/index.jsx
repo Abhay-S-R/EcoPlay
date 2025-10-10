@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Leaf, Droplets, Zap, TrendingUp, User, Target, CheckCircle, Trophy, Settings, Plus } from 'lucide-react';
 import { getActivityDetails } from '../../utils/co2Calculator';
@@ -9,6 +9,15 @@ import RecommendationCard from './components/RecommendationCard';
 import TaskItem from './components/TaskItem';
 import Notification from './components/Notification';
 import ActivityModal from './components/modals/ActivityModal';
+import { getPersonalizedRecommendations } from '../../utils/recommendations';
+
+// ✅ IMPORTANT: Define tasks here so recommendations.js can import it
+export const DAILY_TASKS = [
+  { id: 1, title: 'Use reusable water bottle', description: 'Replace single-use plastic', reward: 50, category: 'waste' },
+  { id: 2, title: 'Take public transport', description: 'Reduce carbon emissions', reward: 75, category: 'transport' },
+  { id: 3, title: 'Turn off lights when leaving', description: 'Save energy', reward: 25, category: 'energy' },
+  { id: 4, title: 'Eat a plant-based meal', description: 'Reduce food carbon footprint', reward: 60, category: 'food' }
+];
 
 const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
   const [formData, setFormData] = useState({
@@ -146,18 +155,18 @@ const EcoPlayDashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const navigate = useNavigate();
 
-  const dailyTasks = [
-    { id: 1, title: 'Use reusable water bottle', description: 'Replace single-use plastic', reward: 50, category: 'waste' },
-    { id: 2, title: 'Take public transport', description: 'Reduce carbon emissions', reward: 75, category: 'transport' },
-    { id: 3, title: 'Turn off lights when leaving', description: 'Save energy', reward: 25, category: 'energy' },
-    { id: 4, title: 'Eat a plant-based meal', description: 'Reduce food carbon footprint', reward: 60, category: 'food' }
-  ];
+  // ✅ FIXED: Use the shared DAILY_TASKS constant
+  const dailyTasks = DAILY_TASKS;
 
-  const recommendations = [
-    { icon: '🚗', title: 'Try carpooling twice this week', description: 'Based on your commute data, this could save 12kg CO₂' },
-    { icon: '🥗', title: 'Add 2 plant-based meals', description: 'Your meat consumption is above average. Try our recipe suggestions!' },
-    { icon: '💡', title: 'Unplug devices when not in use', description: 'Phantom energy use could be costing you 0.5kWh daily' }
-  ];
+  // ✅ FIXED: Only compute recommendations when user profile is complete AND userData changes
+  const recommendations = useMemo(() => {
+    if (userData?.profile?.isProfileComplete) {
+      const recs = getPersonalizedRecommendations(userData);
+      console.log('Recommendations updated:', recs); // Debug log
+      return recs;
+    }
+    return [];
+  }, [userData?.profile?.isProfileComplete, userData?.stats, userData?.dailyData]);
 
   const getTodayString = () => new Date().toISOString().split('T')[0];
 
@@ -352,7 +361,17 @@ const EcoPlayDashboard = () => {
 
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
                 <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center"><Target className="mr-2 h-5 w-5" />Personalized Recommendations</h2>
-                <div className="space-y-4">{recommendations.map((rec, index) => (<RecommendationCard key={index} {...rec} />))}</div>
+                <div className="space-y-4">
+                  {recommendations.length > 0 ? (
+                    recommendations.map((rec) => (
+                      <RecommendationCard key={rec.id} {...rec} />
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      <p>You're doing great! No new recommendations right now.</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {todayData.activities.length > 0 && (
@@ -431,5 +450,3 @@ const EcoPlayDashboard = () => {
 };
 
 export default EcoPlayDashboard;
-
-

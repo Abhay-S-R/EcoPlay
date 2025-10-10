@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+// frontend/src/components/Dashboard.jsx
+// THIS IS THE CORRECT FILE TO EDIT
+
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, CircleCheck as CheckCircle, Trophy, Leaf, Droplets, Zap, TrendingUp, User, Target, Settings } from 'lucide-react';
-import { getActivityDetails } from '../utils/co2Calculator';
 import { saveUserData, loadUserData } from '../utils/storage';
 import { checkAndClaimAchievements } from '../utils/achievements';
 import { ProfileSetupModal } from './modals/ProfileSetupModal';
@@ -12,13 +14,9 @@ import { StatsCard } from './ui/StatsCard';
 import { RecommendationCard } from './ui/RecommendationCard';
 import { TaskItem } from './ui/TaskItem';
 import { convertUnit } from '../utils/unitConverter';
-import {
-  getTodayString,
-  getTodayData,
-  calculateStreak,
-  calculateLevel
-} from '../utils/dateHelpers';
-import { dailyTasks, recommendations } from '../data/constants';
+import { getTodayString, getTodayData, calculateStreak, calculateLevel } from '../utils/dateHelpers';
+import { dailyTasks } from '../data/constants'; // Use constants for tasks
+import { getPersonalizedRecommendations } from '../utils/recommendations'; // Import our new function
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(() => {
@@ -53,6 +51,14 @@ const Dashboard = () => {
       lastActivityDate: null
     };
   });
+
+  // ** This is the dynamic recommendation logic **
+  const recommendations = useMemo(() => {
+    if (userData && userData.profile.isProfileComplete) {
+      return getPersonalizedRecommendations(userData);
+    }
+    return [];
+  }, [userData]);
 
   useEffect(() => {
     if (userData?.profile?.isProfileComplete) {
@@ -368,9 +374,15 @@ const Dashboard = () => {
                 </h2>
 
                 <div className="space-y-4">
-                  {recommendations.map((rec, index) => (
-                    <RecommendationCard key={index} {...rec} />
-                  ))}
+                  {recommendations.length > 0 ? (
+                    recommendations.map((rec) => (
+                      <RecommendationCard key={rec.id} {...rec} />
+                    ))
+                  ) : (
+                    <div className="text-center py-4 text-gray-500">
+                      <p>You're doing great! No new recommendations right now.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
