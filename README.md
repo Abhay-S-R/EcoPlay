@@ -105,6 +105,7 @@ frontend/
 │   │   ├── co2Calculator.js
 │   │   ├── dateHelpers.js
 │   │   ├── gardenStorage.js
+│   │   ├── recommendations.js
 │   │   ├── storage.js
 │   │   ├── treeData.js
 │   │   └── unitConverter.js
@@ -114,7 +115,9 @@ frontend/
 ├── .gitignore
 ├── eslint.config.js
 ├── index.html
+├── netlify.toml
 ├── package.json
 ├── postcss.config.js
-└── tailwind.config.js
+├── tailwind.config.js
+└── vite.config.js
 ```
