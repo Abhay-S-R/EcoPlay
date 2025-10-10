@@ -3,8 +3,8 @@ import { User } from 'lucide-react';
 
 export const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
   const [formData, setFormData] = useState({
-    name: userData.profile.name || '',
-    email: userData.profile.email || ''
+    name: userData?.profile?.name || '',
+    email: userData?.profile?.email || ''
   });
 
   const handleSubmit = () => {
@@ -59,7 +59,7 @@ export const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
           </div>
 
           <div className="flex gap-3 pt-4">
-            {userData.profile.isProfileComplete && (
+            {userData?.profile?.isProfileComplete && (
               <button
                 type="button"
                 onClick={onClose}
@@ -74,7 +74,7 @@ export const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
               disabled={!formData.name.trim()}
               className="flex-1 py-3 px-4 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
             >
-              {userData.profile.isProfileComplete ? 'Update Profile' : 'Start My Journey'}
+              {userData?.profile?.isProfileComplete ? 'Update Profile' : 'Start My Journey'}
             </button>
           </div>
         </div>

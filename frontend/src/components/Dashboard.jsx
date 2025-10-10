@@ -55,26 +55,21 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    if (userData.profile.isProfileComplete) {
-      // Check for new achievements BEFORE saving
+    if (userData?.profile?.isProfileComplete) {
       const newAchievements = checkAndClaimAchievements(userData);
-      
+
       if (newAchievements.length > 0) {
-        // Update state with new achievements
         setUserData(prev => ({
           ...prev,
           achievements: [...(prev.achievements || []), ...newAchievements]
         }));
-        
-        // Show notifications for each new achievement
+
         newAchievements.forEach(achievement => {
           showNotification(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.points} points`);
         });
-        
-        // Dispatch event for other components
+
         window.dispatchEvent(new Event('userDataChanged'));
       } else {
-        // Only save if no new achievements (to avoid duplicate saves)
         saveUserData(userData);
       }
     }
@@ -237,13 +232,13 @@ const Dashboard = () => {
   };
 
   useEffect(() => {
-    if (!userData.profile.isProfileComplete) {
+    if (!userData?.profile?.isProfileComplete) {
       const timer = setTimeout(() => {
         setIsProfileModalOpen(true);
       }, 500);
       return () => clearTimeout(timer);
     }
-  }, [userData.profile.isProfileComplete]);
+  }, [userData?.profile?.isProfileComplete]);
 
   const todayData = getTodayData(userData.dailyData);
 
@@ -286,7 +281,7 @@ const Dashboard = () => {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {userData.profile.isProfileComplete ? (
+        {userData?.profile?.isProfileComplete ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
@@ -470,7 +465,7 @@ const Dashboard = () => {
         )}
       </div>
 
-      {userData.profile.isProfileComplete && (
+      {userData?.profile?.isProfileComplete && (
         <button
           onClick={() => setIsModalOpen(true)}
           className="fixed bottom-8 right-8 bg-gradient-to-r from-emerald-500 to-green-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 z-30"

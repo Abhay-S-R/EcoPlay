@@ -12,8 +12,8 @@ import ActivityModal from './components/modals/ActivityModal';
 
 const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
   const [formData, setFormData] = useState({
-    name: userData.profile.name || '',
-    email: userData.profile.email || ''
+    name: userData?.profile?.name || '',
+    email: userData?.profile?.email || ''
   });
 
   const handleSubmit = () => {
@@ -60,11 +60,11 @@ const ProfileSetupModal = ({ onClose, onSubmit, userData }) => {
             </ul>
           </div>
           <div className="flex gap-3 pt-4">
-            {userData.profile.isProfileComplete && (
+            {userData?.profile?.isProfileComplete && (
               <button type="button" onClick={onClose} className="flex-1 py-3 px-4 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-colors">Cancel</button>
             )}
             <button type="button" onClick={handleSubmit} disabled={!formData.name.trim()} className="flex-1 py-3 px-4 bg-emerald-500 text-white rounded-lg font-medium hover:bg-emerald-600 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed">
-              {userData.profile.isProfileComplete ? 'Update Profile' : 'Start My Journey'}
+              {userData?.profile?.isProfileComplete ? 'Update Profile' : 'Start My Journey'}
             </button>
           </div>
         </div>
@@ -135,7 +135,7 @@ const EcoPlayDashboard = () => {
   });
 
   useEffect(() => {
-    if (userData.profile.isProfileComplete) {
+    if (userData?.profile?.isProfileComplete) {
       saveUserData(userData);
     }
   }, [userData]);
@@ -270,11 +270,11 @@ const EcoPlayDashboard = () => {
   };
 
   useEffect(() => {
-    if (!userData.profile.isProfileComplete) {
+    if (!userData?.profile?.isProfileComplete) {
       const timer = setTimeout(() => setIsProfileModalOpen(true), 500);
       return () => clearTimeout(timer);
     }
-  }, [userData.profile.isProfileComplete]);
+  }, [userData?.profile?.isProfileComplete]);
 
   const todayData = getTodayData();
 
@@ -303,7 +303,7 @@ const EcoPlayDashboard = () => {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {userData.profile.isProfileComplete ? (
+        {userData?.profile?.isProfileComplete ? (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
               <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
@@ -412,7 +412,7 @@ const EcoPlayDashboard = () => {
         )}
       </div>
 
-      {userData.profile.isProfileComplete && (
+      {userData?.profile?.isProfileComplete && (
         <button onClick={() => setIsModalOpen(true)} className="fixed bottom-8 right-8 bg-gradient-to-r from-emerald-500 to-green-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 z-30">
           <Plus className="h-6 w-6" />
         </button>
