@@ -6,6 +6,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { ArrowLeft, Home, Sparkles, Crown, TreePine, Plus, Trash2, Eye, RotateCw } from 'lucide-react';
 import { useNavigate, Link } from 'react-router-dom';
 import { getTreeById } from '../../utils/treeData';
+import { saveGardenData, loadGardenData } from '../../utils/gardenStorage';
 
 const EcoGarden3D = () => {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ const EcoGarden3D = () => {
   const [showTreeSelector, setShowTreeSelector] = useState(false);
   const [placedTrees, setPlacedTrees] = useState([]);
   const [treeCount, setTreeCount] = useState(0);
+  const [isLoadingGarden, setIsLoadingGarden] = useState(true);
   const [selectedTreeForDeletion, setSelectedTreeForDeletion] = useState(null);
 
   // Get the TreeContext to refresh owned trees
@@ -621,23 +623,19 @@ const EcoGarden3D = () => {
     }
   };
 
-  // Save garden to localStorage (called automatically)
   const saveGarden = (trees) => {
-    const gardenData = trees.map(tree => ({
-      typeId: tree.type.id,
-      position: { x: tree.position.x, y: tree.position.y, z: tree.position.z }
-    }));
-    localStorage.setItem('ecoplay_garden', JSON.stringify(gardenData));
+    saveGardenData(trees);
   };
 
-  // Load garden from localStorage
   const loadGarden = () => {
-    const data = localStorage.getItem('ecoplay_garden');
-    if (!data) return;
-    try {
-      const gardenData = JSON.parse(data);
-      // Remove existing trees from scene
-      placedTrees.forEach(tree => {
+    if (!sceneRef.current) {
+      return;
+    }
+
+    const { trees: savedTrees, treeCount: savedCount } = loadGardenData();
+
+    placedTrees.forEach(tree => {
+      if (tree.mesh && sceneRef.current) {
         sceneRef.current.remove(tree.mesh);
         tree.mesh.traverse((object) => {
           if (object instanceof THREE.Mesh) {
@@ -645,54 +643,50 @@ const EcoGarden3D = () => {
             object.material.dispose();
           }
         });
-      });
-      // Add loaded trees
-      const loadedTrees = [];
-      gardenData.forEach(item => {
-        // Get the full tree data from the unified tree data system
-        const fullTreeData = getTreeById(item.typeId);
-        if (fullTreeData) {
-          const mesh = createTreeMesh(fullTreeData);
-          mesh.position.set(item.position.x, item.position.y, item.position.z);
-          mesh.castShadow = true;
-          mesh.receiveShadow = true;
-          mesh.userData = { isTree: true, treeId: Date.now() + Math.random(), treeType: item.typeId };
-          sceneRef.current.add(mesh);
-          loadedTrees.push({
-            id: mesh.userData.treeId,
-            type: fullTreeData,
-            position: { ...item.position },
-            mesh
-          });
-        }
-      });
-      setPlacedTrees(loadedTrees);
-      setTreeCount(loadedTrees.length);
-    } catch (e) {
-      console.error('Error loading garden:', e);
-    }
+      }
+    });
+
+    const loadedTrees = [];
+    savedTrees.forEach(item => {
+      const fullTreeData = getTreeById(item.typeId);
+      if (fullTreeData && sceneRef.current) {
+        const mesh = createTreeMesh(fullTreeData);
+        mesh.position.set(item.position.x, item.position.y, item.position.z);
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.userData = { isTree: true, treeId: Date.now() + Math.random(), treeType: item.typeId };
+        sceneRef.current.add(mesh);
+        loadedTrees.push({
+          id: mesh.userData.treeId,
+          type: fullTreeData,
+          position: { ...item.position },
+          mesh
+        });
+      }
+    });
+
+    setPlacedTrees(loadedTrees);
+    setTreeCount(loadedTrees.length);
+    setIsLoadingGarden(false);
   };
 
-  // Load garden on mount and whenever the component is shown (handle SPA navigation)
   useEffect(() => {
-    loadGarden();
-    // Listen for visibility change (tab focus) to reload garden if needed
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        loadGarden();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility);
-    };
-    // eslint-disable-next-line
-  }, []);
+    if (sceneRef.current && !isLoadingGarden) {
+      return;
+    }
 
-  // Autosave garden whenever placedTrees changes
+    const timer = setTimeout(() => {
+      loadGarden();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [sceneRef.current]);
+
   useEffect(() => {
-    saveGarden(placedTrees);
-  }, [placedTrees]);
+    if (!isLoadingGarden && placedTrees.length >= 0) {
+      saveGarden(placedTrees);
+    }
+  }, [placedTrees, isLoadingGarden]);
 
   useEffect(() => {
     const canvas = rendererRef.current?.domElement;
