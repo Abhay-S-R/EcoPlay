@@ -1,22 +1,43 @@
 // frontend/src/components/Dashboard.jsx
 // THIS IS THE CORRECT FILE TO EDIT
 
-import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, CircleCheck as CheckCircle, Trophy, Leaf, Droplets, Zap, TrendingUp, User, Target, Settings } from 'lucide-react';
-import { saveUserData, loadUserData } from '../utils/storage';
-import { checkAndClaimAchievements } from '../utils/achievements';
-import { ProfileSetupModal } from './modals/ProfileSetupModal';
-import { ActivityModal } from './modals/ActivityModal';
-import { SettingsModal } from './modals/SettingsModal';
-import { Notification } from './ui/Notification';
-import { StatsCard } from './ui/StatsCard';
-import { RecommendationCard } from './ui/RecommendationCard';
-import { TaskItem } from './ui/TaskItem';
-import { convertUnit } from '../utils/unitConverter';
-import { getTodayString, getTodayData, calculateStreak, calculateLevel } from '../utils/dateHelpers';
-import { dailyTasks } from '../data/constants'; // Use constants for tasks
-import { getPersonalizedRecommendations } from '../utils/recommendations'; // Import our new function
+import React, { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
+import {
+  Plus,
+  CircleCheck as CheckCircle,
+  Trophy,
+  Leaf,
+  Droplets,
+  Zap,
+  TrendingUp,
+  User,
+  Target,
+  Settings,
+  Menu,
+  X,
+  LayoutGrid,
+  ShoppingBag,
+  Trees,
+} from "lucide-react";
+import { saveUserData, loadUserData } from "../utils/storage";
+import { checkAndClaimAchievements } from "../utils/achievements";
+import { ProfileSetupModal } from "./modals/ProfileSetupModal";
+import { ActivityModal } from "./modals/ActivityModal";
+import { SettingsModal } from "./modals/SettingsModal";
+import { Notification } from "./ui/Notification";
+import { StatsCard } from "./ui/StatsCard";
+import { RecommendationCard } from "./ui/RecommendationCard";
+import { TaskItem } from "./ui/TaskItem";
+import { convertUnit } from "../utils/unitConverter";
+import {
+  getTodayString,
+  getTodayData,
+  calculateStreak,
+  calculateLevel,
+} from "../utils/dateHelpers";
+import { dailyTasks } from "../data/constants"; // Use constants for tasks
+import { getPersonalizedRecommendations } from "../utils/recommendations"; // Import our new function
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(() => {
@@ -24,7 +45,7 @@ const Dashboard = () => {
     if (savedData) {
       return {
         ...savedData,
-        settings: savedData.settings || { units: 'metric' }
+        settings: savedData.settings || { units: "metric" },
       };
     }
     return {
@@ -32,9 +53,9 @@ const Dashboard = () => {
         name: "",
         email: "",
         joinDate: null,
-        isProfileComplete: false
+        isProfileComplete: false,
       },
-      settings: { units: 'metric' },
+      settings: { units: "metric" },
       stats: {
         totalEcoPoints: 0,
         level: 1,
@@ -44,13 +65,15 @@ const Dashboard = () => {
         lifetimeStats: {
           co2Saved: 0,
           waterSaved: 0,
-          energySaved: 0
-        }
+          energySaved: 0,
+        },
       },
       dailyData: [],
-      lastActivityDate: null
+      lastActivityDate: null,
     };
   });
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // ** This is the dynamic recommendation logic **
   const recommendations = useMemo(() => {
@@ -65,16 +88,18 @@ const Dashboard = () => {
       const newAchievements = checkAndClaimAchievements(userData);
 
       if (newAchievements.length > 0) {
-        setUserData(prev => ({
+        setUserData((prev) => ({
           ...prev,
-          achievements: [...(prev.achievements || []), ...newAchievements]
+          achievements: [...(prev.achievements || []), ...newAchievements],
         }));
 
-        newAchievements.forEach(achievement => {
-          showNotification(`🏆 Achievement Unlocked: ${achievement.name}! +${achievement.points} points`);
+        newAchievements.forEach((achievement) => {
+          showNotification(
+            `🏆 Achievement Unlocked: ${achievement.name}! +${achievement.points} points`
+          );
         });
 
-        window.dispatchEvent(new Event('userDataChanged'));
+        window.dispatchEvent(new Event("userDataChanged"));
       } else {
         saveUserData(userData);
       }
@@ -87,45 +112,50 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
 
   const showNotification = (message) => {
-    setNotifications(prev => {
-      if (prev.some(n => n.message === message)) return prev;
+    setNotifications((prev) => {
+      if (prev.some((n) => n.message === message)) return prev;
       const id = Date.now();
       return [...prev, { id, message }];
     });
     setTimeout(() => {
-      setNotifications(prev => prev.filter(n => n.message !== message));
+      setNotifications((prev) => prev.filter((n) => n.message !== message));
     }, 3000);
   };
 
   const setupProfile = (profileData) => {
-    setUserData(prev => ({
+    setUserData((prev) => ({
       ...prev,
       profile: {
         ...profileData,
         joinDate: new Date().toISOString(),
-        isProfileComplete: true
-      }
+        isProfileComplete: true,
+      },
     }));
     setIsProfileModalOpen(false);
-    showNotification('Welcome to EcoPlay! Start logging your eco-activities! 🌱');
+    showNotification(
+      "Welcome to EcoPlay! Start logging your eco-activities! 🌱"
+    );
   };
 
   const toggleTask = (taskId) => {
     const today = getTodayString();
-    const task = dailyTasks.find(t => t.id === taskId);
+    const task = dailyTasks.find((t) => t.id === taskId);
 
-    setUserData(prev => {
+    setUserData((prev) => {
       const updatedDailyData = [...prev.dailyData];
-      const todayIndex = updatedDailyData.findIndex(day => day.date === today);
-      let todayRecord = todayIndex >= 0
-        ? { ...updatedDailyData[todayIndex] }
-        : getTodayData(prev.dailyData);
+      const todayIndex = updatedDailyData.findIndex(
+        (day) => day.date === today
+      );
+      let todayRecord =
+        todayIndex >= 0
+          ? { ...updatedDailyData[todayIndex] }
+          : getTodayData(prev.dailyData);
 
       const isCompleted = todayRecord.tasksCompleted.includes(taskId);
       const pointDelta = isCompleted ? -task.reward : task.reward;
 
       todayRecord.tasksCompleted = isCompleted
-        ? todayRecord.tasksCompleted.filter(id => id !== taskId)
+        ? todayRecord.tasksCompleted.filter((id) => id !== taskId)
         : [...todayRecord.tasksCompleted, taskId];
 
       todayRecord.pointsEarned += pointDelta;
@@ -136,7 +166,10 @@ const Dashboard = () => {
         updatedDailyData.push(todayRecord);
       }
 
-      const newTotalPoints = updatedDailyData.reduce((sum, day) => sum + day.pointsEarned, 0);
+      const newTotalPoints = updatedDailyData.reduce(
+        (sum, day) => sum + day.pointsEarned,
+        0
+      );
       const newStreak = calculateStreak(updatedDailyData);
 
       if (!isCompleted) {
@@ -152,49 +185,60 @@ const Dashboard = () => {
           level: calculateLevel(newTotalPoints),
           currentStreak: newStreak,
           longestStreak: Math.max(prev.stats.longestStreak, newStreak),
-          lifetimeStats: prev.stats.lifetimeStats
-        }
+          lifetimeStats: prev.stats.lifetimeStats,
+        },
       };
     });
   };
 
   const submitActivity = (activityData) => {
     const today = getTodayString();
-    const points = activityData.activityType === 'water'
-      ? Math.round(parseFloat(activityData.value) * 20)
-      : Math.round(activityData.impact * 20);
+    const points =
+      activityData.activityType === "water"
+        ? Math.round(parseFloat(activityData.value) * 20)
+        : Math.round(activityData.impact * 20);
 
-    setUserData(prev => {
+    setUserData((prev) => {
       const updatedDailyData = [...prev.dailyData];
-      const todayIndex = updatedDailyData.findIndex(day => day.date === today);
-      let todayRecord = todayIndex >= 0
-        ? { ...updatedDailyData[todayIndex] }
-        : getTodayData(prev.dailyData);
+      const todayIndex = updatedDailyData.findIndex(
+        (day) => day.date === today
+      );
+      let todayRecord =
+        todayIndex >= 0
+          ? { ...updatedDailyData[todayIndex] }
+          : getTodayData(prev.dailyData);
 
       const newActivity = {
         ...activityData,
         id: Date.now(),
         timestamp: new Date().toISOString(),
-        points
+        points,
       };
 
-      if (!todayRecord.activities.some(activity =>
-        activity.description === newActivity.description &&
-        activity.timestamp === newActivity.timestamp
-      )) {
+      if (
+        !todayRecord.activities.some(
+          (activity) =>
+            activity.description === newActivity.description &&
+            activity.timestamp === newActivity.timestamp
+        )
+      ) {
         todayRecord.activities.push(newActivity);
         todayRecord.pointsEarned += points;
 
-        if (activityData.activityType === 'water') {
+        if (activityData.activityType === "water") {
           const waterAmount = parseFloat(activityData.value) || 0;
           todayRecord.waterSaved += waterAmount;
-          showNotification(`💧 You saved ${waterAmount}L of water and earned ${points} EcoPoints! Every drop counts!`);
+          showNotification(
+            `💧 You saved ${waterAmount}L of water and earned ${points} EcoPoints! Every drop counts!`
+          );
         } else {
           todayRecord.co2Saved += activityData.impact;
-          if (activityData.activityType === 'energy') {
+          if (activityData.activityType === "energy") {
             todayRecord.energySaved += activityData.energyAmount || 0;
           }
-          showNotification(`Great job! You saved ${activityData.impact}kg CO₂ and earned ${points} EcoPoints! 🌱`);
+          showNotification(
+            `Great job! You saved ${activityData.impact}kg CO₂ and earned ${points} EcoPoints! 🌱`
+          );
         }
       }
 
@@ -204,19 +248,28 @@ const Dashboard = () => {
         updatedDailyData.push(todayRecord);
       }
 
-      const lifetimeStats = updatedDailyData.reduce((total, day) => ({
-        co2Saved: total.co2Saved + (day.co2Saved || 0),
-        waterSaved: total.waterSaved + (day.waterSaved || 0),
-        energySaved: total.energySaved + (day.energySaved || 0)
-      }), {
-        co2Saved: 0,
-        waterSaved: 0,
-        energySaved: 0
-      });
+      const lifetimeStats = updatedDailyData.reduce(
+        (total, day) => ({
+          co2Saved: total.co2Saved + (day.co2Saved || 0),
+          waterSaved: total.waterSaved + (day.waterSaved || 0),
+          energySaved: total.energySaved + (day.energySaved || 0),
+        }),
+        {
+          co2Saved: 0,
+          waterSaved: 0,
+          energySaved: 0,
+        }
+      );
 
-      const newTotalPoints = updatedDailyData.reduce((sum, day) => sum + day.pointsEarned, 0);
+      const newTotalPoints = updatedDailyData.reduce(
+        (sum, day) => sum + day.pointsEarned,
+        0
+      );
       const newStreak = calculateStreak(updatedDailyData);
-      const newTotalActivities = updatedDailyData.reduce((sum, day) => sum + day.activities.length, 0);
+      const newTotalActivities = updatedDailyData.reduce(
+        (sum, day) => sum + day.activities.length,
+        0
+      );
 
       return {
         ...prev,
@@ -229,8 +282,8 @@ const Dashboard = () => {
           currentStreak: newStreak,
           longestStreak: Math.max(prev.stats.longestStreak, newStreak),
           totalActivities: newTotalActivities,
-          lifetimeStats
-        }
+          lifetimeStats,
+        },
       };
     });
 
@@ -257,29 +310,124 @@ const Dashboard = () => {
               <Leaf className="h-8 w-8 text-white" />
               <span className="text-2xl font-bold text-white">EcoPlay</span>
             </Link>
+
+            {/* Desktop Links */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/stats" className="text-white hover:text-green-200 font-medium">Stats</Link>
-              <Link to="/shop" className="text-white hover:text-green-200 font-medium">Shop</Link>
-              <Link to="/garden" className="text-white hover:text-green-200 font-medium">Garden</Link>
+              <Link
+                to="/stats"
+                className="text-white hover:text-green-200 font-medium"
+              >
+                Stats
+              </Link>
+              <Link
+                to="/shop"
+                className="text-white hover:text-green-200 font-medium"
+              >
+                Shop
+              </Link>
+              <Link
+                to="/garden"
+                className="text-white hover:text-green-200 font-medium"
+              >
+                Garden
+              </Link>
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold">
-                Level {userData.stats.level}
+
+            <div className="flex items-center space-x-2">
+              {/* Desktop Icons and Stats */}
+              <div className="hidden sm:flex items-center space-x-4">
+                <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold whitespace-nowrap">
+                  Level {userData.stats.level}
+                </div>
+                <div className="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full font-semibold whitespace-nowrap">
+                  💎 {userData.stats.totalEcoPoints.toLocaleString()}
+                </div>
+                <button
+                  onClick={() => setIsProfileModalOpen(true)}
+                  className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-colors"
+                >
+                  <User className="h-4 w-4 text-white" />
+                </button>
+                <button
+                  onClick={() => setIsSettingsModalOpen(true)}
+                  className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-colors"
+                >
+                  <Settings className="h-4 w-4 text-white" />
+                </button>
               </div>
-              <div className="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full font-semibold">
+
+              {/* Mobile EcoPoints (always visible on small screens) */}
+              <div className="sm:hidden bg-white bg-opacity-20 text-white px-2 py-1 rounded-full text-lg font-semibold whitespace-nowrap">
                 💎 {userData.stats.totalEcoPoints.toLocaleString()}
               </div>
+
+              {/* Mobile Menu Hamburger Button */}
+              <div className="md:hidden">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="w-10 h-10 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-all duration-300"
+                >
+                  {isMenuOpen ? (
+                    <X className="h-5 w-5 text-white" />
+                  ) : (
+                    <Menu className="h-5 w-5 text-white" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Menu Dropdown */}
+        <div
+          className={`absolute top-16 left-0 w-full bg-gradient-to-r from-emerald-600 to-green-600 md:hidden transition-max-height duration-500 ease-in-out overflow-hidden ${
+            isMenuOpen ? "max-h-screen" : "max-h-0"
+          }`}
+        >
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 animate-slide-down">
+            <Link
+              to="/stats"
+              className="flex items-center text-white hover:bg-emerald-700/50 block px-3 py-3 rounded-md text-base font-medium"
+            >
+              <LayoutGrid className="mr-3 h-5 w-5" />
+              Stats
+            </Link>
+            <Link
+              to="/shop"
+              className="flex items-center text-white hover:bg-emerald-700/50 block px-3 py-3 rounded-md text-base font-medium"
+            >
+              <ShoppingBag className="mr-3 h-5 w-5" />
+              Shop
+            </Link>
+            <Link
+              to="/garden"
+              className="flex items-center text-white hover:bg-emerald-700/50 block px-3 py-3 rounded-md text-base font-medium"
+            >
+              <Trees className="mr-3 h-5 w-5" />
+              Garden
+            </Link>
+
+            {/* Added Profile and Settings Buttons */}
+            <div className="border-t border-white/20 mt-2 pt-2">
               <button
-                onClick={() => setIsProfileModalOpen(true)}
-                className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-colors"
+                onClick={() => {
+                  setIsProfileModalOpen(true);
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center text-white hover:bg-emerald-700/50 block px-3 py-3 rounded-md text-base font-medium"
               >
-                <User className="h-4 w-4 text-white" />
+                <User className="mr-3 h-5 w-5" />
+                Profile
               </button>
               <button
-                onClick={() => setIsSettingsModalOpen(true)}
-                className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center hover:bg-opacity-30 transition-colors"
+                onClick={() => {
+                  setIsSettingsModalOpen(true);
+                  setIsMenuOpen(false);
+                }}
+                className="w-full flex items-center text-white hover:bg-emerald-700/50 block px-3 py-3 rounded-md text-base font-medium"
               >
-                <Settings className="h-4 w-4 text-white" />
+                <Settings className="mr-3 h-5 w-5" />
+                Settings
               </button>
             </div>
           </div>
@@ -303,7 +451,9 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white p-4 rounded-xl text-center shadow-lg">
-                    <div className="text-2xl font-bold">{userData.stats.currentStreak}</div>
+                    <div className="text-2xl font-bold">
+                      {userData.stats.currentStreak}
+                    </div>
                     <div className="text-sm">Day Streak</div>
                   </div>
                 </div>
@@ -342,27 +492,41 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <div className="text-2xl font-bold text-green-600">
-                      {convertUnit(userData.stats.lifetimeStats.co2Saved.toFixed(1), 'co2', userData.settings.units)}
+                      {convertUnit(
+                        userData.stats.lifetimeStats.co2Saved.toFixed(1),
+                        "co2",
+                        userData.settings.units
+                      )}
                     </div>
                     <div className="text-sm text-gray-600">Total CO₂ Saved</div>
                   </div>
                   <div className="text-center p-4 bg-blue-50 rounded-lg">
                     <div className="text-2xl font-bold text-blue-600">
-                      {convertUnit(userData.stats.lifetimeStats.waterSaved, 'water', userData.settings.units)}
+                      {convertUnit(
+                        userData.stats.lifetimeStats.waterSaved,
+                        "water",
+                        userData.settings.units
+                      )}
                     </div>
-                    <div className="text-sm text-gray-600">Total Water Saved</div>
+                    <div className="text-sm text-gray-600">
+                      Total Water Saved
+                    </div>
                   </div>
                   <div className="text-center p-4 bg-yellow-50 rounded-lg">
                     <div className="text-2xl font-bold text-yellow-600">
                       {userData.stats.lifetimeStats.energySaved}kWh
                     </div>
-                    <div className="text-sm text-gray-600">Total Energy Saved</div>
+                    <div className="text-sm text-gray-600">
+                      Total Energy Saved
+                    </div>
                   </div>
                   <div className="text-center p-4 bg-purple-50 rounded-lg">
                     <div className="text-2xl font-bold text-purple-600">
                       {userData.stats.totalActivities}
                     </div>
-                    <div className="text-sm text-gray-600">Activities Logged</div>
+                    <div className="text-sm text-gray-600">
+                      Activities Logged
+                    </div>
                   </div>
                 </div>
               </div>
@@ -380,7 +544,9 @@ const Dashboard = () => {
                     ))
                   ) : (
                     <div className="text-center py-4 text-gray-500">
-                      <p>You're doing great! No new recommendations right now.</p>
+                      <p>
+                        You're doing great! No new recommendations right now.
+                      </p>
                     </div>
                   )}
                 </div>
@@ -388,7 +554,9 @@ const Dashboard = () => {
 
               {todayData.activities.length > 0 && (
                 <div className="bg-white rounded-2xl shadow-lg p-6 border border-green-100">
-                  <h2 className="text-xl font-bold text-gray-800 mb-6">Today's Activities</h2>
+                  <h2 className="text-xl font-bold text-gray-800 mb-6">
+                    Today's Activities
+                  </h2>
                   <div className="space-y-3">
                     {todayData.activities.map((activity, index) => (
                       <div
@@ -396,11 +564,21 @@ const Dashboard = () => {
                         className="flex items-center justify-between p-3 bg-green-50 rounded-lg"
                       >
                         <div>
-                          <div className="font-medium text-gray-800">{activity.description}</div>
+                          <div className="font-medium text-gray-800">
+                            {activity.description}
+                          </div>
                           <div className="text-sm text-gray-600">
-                            {activity.activityType === 'water'
-                              ? `💧 ${convertUnit(activity.value, 'water', userData.settings.units)} saved`
-                              : `${activity.activityType} • ${convertUnit(activity.impact, 'co2', userData.settings.units)} saved`}
+                            {activity.activityType === "water"
+                              ? `💧 ${convertUnit(
+                                  activity.value,
+                                  "water",
+                                  userData.settings.units
+                                )} saved`
+                              : `${activity.activityType} • ${convertUnit(
+                                  activity.impact,
+                                  "co2",
+                                  userData.settings.units
+                                )} saved`}
                           </div>
                         </div>
                         <div className="bg-green-500 text-white px-2 py-1 rounded text-sm font-semibold">
@@ -420,7 +598,7 @@ const Dashboard = () => {
                   Daily Eco-Tasks
                 </h2>
                 <div className="space-y-3">
-                  {dailyTasks.map(task => (
+                  {dailyTasks.map((task) => (
                     <TaskItem
                       key={task.id}
                       task={task}
@@ -430,11 +608,16 @@ const Dashboard = () => {
                   ))}
                 </div>
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg text-center">
-                  <div className="text-sm text-gray-600">Today's Task Points</div>
+                  <div className="text-sm text-gray-600">
+                    Today's Task Points
+                  </div>
                   <div className="text-lg font-bold text-emerald-600">
                     {dailyTasks
-                      .filter(task => todayData.tasksCompleted.includes(task.id))
-                      .reduce((sum, t) => sum + t.reward, 0)} pts
+                      .filter((task) =>
+                        todayData.tasksCompleted.includes(task.id)
+                      )
+                      .reduce((sum, t) => sum + t.reward, 0)}{" "}
+                    pts
                   </div>
                 </div>
               </div>
@@ -470,8 +653,12 @@ const Dashboard = () => {
           <div className="flex items-center justify-center min-h-96">
             <div className="text-center">
               <Leaf className="h-16 w-16 text-emerald-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to EcoPlay!</h2>
-              <p className="text-gray-600 mb-4">Let's set up your profile to start tracking your eco journey</p>
+              <h2 className="text-2xl font-bold text-gray-800 mb-2">
+                Welcome to EcoPlay!
+              </h2>
+              <p className="text-gray-600 mb-4">
+                Let's set up your profile to start tracking your eco journey
+              </p>
             </div>
           </div>
         )}
@@ -494,7 +681,12 @@ const Dashboard = () => {
         />
       )}
 
-      {isModalOpen && <ActivityModal onClose={() => setIsModalOpen(false)} onSubmit={submitActivity} />}
+      {isModalOpen && (
+        <ActivityModal
+          onClose={() => setIsModalOpen(false)}
+          onSubmit={submitActivity}
+        />
+      )}
 
       {isSettingsModalOpen && (
         <SettingsModal
@@ -505,7 +697,7 @@ const Dashboard = () => {
       )}
 
       <div className="fixed top-20 right-4 z-50 space-y-2">
-        {notifications.map(notification => (
+        {notifications.map((notification) => (
           <Notification key={notification.id} message={notification.message} />
         ))}
       </div>

@@ -234,15 +234,15 @@ const StatsPage = () => {
               </button>
               <div className="flex items-center space-x-2">
                 <Leaf className="h-8 w-8 text-white" />
-                <span className="text-2xl font-bold text-white">EcoPlay Stats</span>
+                <span className="text-2xl font-bold text-white whitespace-nowrap">EcoPlay Stats</span>
               </div>
             </div>
             
-            <div className="flex items-center space-x-4">
-              <div className="bg-yellow-400 text-yellow-900 px-3 py-1 rounded-full text-sm font-semibold">
+            <div className="flex items-center space-x-2 ml-2">
+              <div className="bg-yellow-400 text-yellow-900 px-2 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap">
                 Level {userData.level}
               </div>
-              <div className="bg-white bg-opacity-20 text-white px-3 py-1 rounded-full font-semibold">
+              <div className="bg-white bg-opacity-20 text-white px-2 py-1 rounded-full text-xs sm:text-sm font-semibold whitespace-nowrap">
                 💎 {userData.ecoPoints.toLocaleString()}
               </div>
             </div>

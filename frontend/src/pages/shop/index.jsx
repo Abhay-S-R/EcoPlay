@@ -135,12 +135,12 @@ const EcoPlayShop = () => {
               </Link>
               <div className="flex items-center space-x-2">
                 <ShoppingCart className="h-8 w-8 text-white" />
-                <span className="text-2xl font-bold text-white">Tree Shop</span>
+                <span className="text-2xl font-bold text-white whitespace-nowrap">Tree Shop</span>
               </div>
             </div>
             
             <div className="flex items-center space-x-4">
-              <div className="bg-yellow-400 text-yellow-900 px-4 py-2 rounded-full font-bold flex items-center space-x-2">
+              <div className="bg-yellow-400 text-yellow-900 px-3 sm:px-4 py-2 rounded-full font-bold flex items-center space-x-2 whitespace-nowrap text-xs">
                 <Sparkles className="h-4 w-4" />
                 <span>{userPoints.toLocaleString()} EcoPoints</span>
               </div>
