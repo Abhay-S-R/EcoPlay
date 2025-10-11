@@ -112,14 +112,18 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
 
   const showNotification = (message) => {
-    setNotifications((prev) => {
-      if (prev.some((n) => n.message === message)) return prev;
-      const id = Date.now();
+    const id = Date.now() + Math.random(); // Add random number for more uniqueness
+
+    setNotifications(prev => {
+      // Prevent adding the exact same message if it's already visible
+      if (prev.some(n => n.message === message)) return prev;
       return [...prev, { id, message }];
     });
+
+    // Set a timer to remove this specific notification by its unique ID
     setTimeout(() => {
-      setNotifications((prev) => prev.filter((n) => n.message !== message));
-    }, 3000);
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 3000); // 2 seconds
   };
 
   const setupProfile = (profileData) => {
