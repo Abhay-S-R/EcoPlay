@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { getActivityDetails } from '../../../../utils/co2Calculator';
 
 const activitySubTypes = {
