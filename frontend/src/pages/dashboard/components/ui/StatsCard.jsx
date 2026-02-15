@@ -1,10 +1,9 @@
-import React from 'react';
-import { convertUnit } from '../../../utils/units';
+import { convertUnit } from '../../../../utils/unitConverter';
 
-const StatsCard = ({ icon, value, label, color, units }) => {
+export const StatsCard = ({ icon, value, label, color, units }) => {
   const matches = value.match(/^([\d.]+)(.+)$/);
   if (matches) {
-    const [, num, unit] = matches;
+    const [_, num, unit] = matches;
     if (unit === 'kg') {
       value = convertUnit(num, 'co2', units);
     } else if (unit === 'km') {
@@ -28,7 +27,3 @@ const StatsCard = ({ icon, value, label, color, units }) => {
     </div>
   );
 };
-
-export default StatsCard;
-
-

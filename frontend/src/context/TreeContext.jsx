@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
+import { createContext, useContext, useState, useEffect } from 'react';
 import { loadUserData, saveUserData } from '../utils/storage';
 
 // Define initial context value
@@ -121,6 +123,7 @@ export const TreeProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTreeContext = () => {
   const context = useContext(TreeContext);
   if (!context) {

@@ -1,11 +1,10 @@
-import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { TreeProvider } from './context/TreeContext';
-import HomePage from './components/HomePage';
-import Dashboard from './components/Dashboard';
-import EcoGarden3D from './pages/base';
-import EcoPlayShop from './pages/shop';
-import StatsPage from './pages/stats';
+import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Garden from "./pages/Garden";
+import Shop from './pages/Shop';
+import Stats from './pages/Stats';
 
 
 function App() {
@@ -14,11 +13,11 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<Home />} />
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/garden" element={<EcoGarden3D />} />
-            <Route path="/shop" element={<EcoPlayShop />} />
-            <Route path="/stats" element={<StatsPage />} />
+            <Route path="/garden" element={<Garden />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/stats" element={<Stats />} />
           </Routes>
         </div>
       </Router>

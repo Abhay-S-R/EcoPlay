@@ -1,7 +1,4 @@
-// frontend/src/components/Dashboard.jsx
-// THIS IS THE CORRECT FILE TO EDIT
-
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Plus,
@@ -20,24 +17,24 @@ import {
   ShoppingBag,
   Trees,
 } from "lucide-react";
-import { saveUserData, loadUserData } from "../utils/storage";
-import { checkAndClaimAchievements } from "../utils/achievements";
-import { ProfileSetupModal } from "./modals/ProfileSetupModal";
-import { ActivityModal } from "./modals/ActivityModal";
-import { SettingsModal } from "./modals/SettingsModal";
-import { Notification } from "./ui/Notification";
-import { StatsCard } from "./ui/StatsCard";
-import { RecommendationCard } from "./ui/RecommendationCard";
-import { TaskItem } from "./ui/TaskItem";
-import { convertUnit } from "../utils/unitConverter";
+import { saveUserData, loadUserData } from "../../utils/storage";
+import { checkAndClaimAchievements } from "../../utils/achievements";
+import { ProfileSetupModal } from "./components/modals/ProfileSetupModal";
+import { ActivityModal } from "./components/modals/ActivityModal";
+import { SettingsModal } from "./components/modals/SettingsModal";
+import { Notification } from "./components/ui/Notification";
+import { StatsCard } from "./components/ui/StatsCard";
+import { RecommendationCard } from "./components/ui/RecommendationCard";
+import { TaskItem } from "./components/ui/TaskItem";
+import { convertUnit } from "../../utils/unitConverter";
 import {
   getTodayString,
   getTodayData,
   calculateStreak,
   calculateLevel,
-} from "../utils/dateHelpers";
-import { dailyTasks } from "../data/constants"; // Use constants for tasks
-import { getPersonalizedRecommendations } from "../utils/recommendations"; // Import our new function
+} from "../../utils/dateHelpers";
+import { dailyTasks } from "../../data/constants"; // Use constants for tasks
+import { getPersonalizedRecommendations } from "../../utils/recommendations"; // Import our new function
 
 const Dashboard = () => {
   const [userData, setUserData] = useState(() => {

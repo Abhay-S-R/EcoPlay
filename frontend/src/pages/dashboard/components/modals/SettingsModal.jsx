@@ -1,5 +1,4 @@
-import React from 'react';
-import { clearUserData } from '../../utils/storage';
+import { clearUserData } from '../../../../utils/storage';
 
 export const SettingsModal = ({ onClose, userData, setUserData }) => {
   const handleUnitChange = (e) => {

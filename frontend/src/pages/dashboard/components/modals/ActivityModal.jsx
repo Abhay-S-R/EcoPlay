@@ -1,7 +1,37 @@
 import React, { useState } from 'react';
 import { getActivityDetails } from '../../../../utils/co2Calculator';
 
-const ActivityModal = ({ onClose, onSubmit }) => {
+const activitySubTypes = {
+  water: [
+    { value: 'shortShower', label: '🚿 Short Shower (5 mins)' },
+    { value: 'bucketWash', label: '🪣 Bucket vs Hose' },
+    { value: 'rainwater', label: '☔ Rainwater Collection' }
+  ],
+  transport: [
+    { value: 'walk', label: '🚶 Walking' },
+    { value: 'bike', label: '🚲 Cycling' },
+    { value: 'bus', label: '🚌 Bus' },
+    { value: 'train', label: '🚂 Train' }
+  ],
+  energy: [
+    { value: 'electricity', label: '💡 Electricity' },
+    { value: 'naturalGas', label: '🔥 Natural Gas' }
+  ],
+  waste: [
+    { value: 'plastic', label: '♻️ Plastic Recycling' },
+    { value: 'paper', label: '📄 Paper Recycling' },
+    { value: 'glass', label: '🍶 Glass Recycling' }
+  ]
+};
+
+const activityLabels = {
+  transport: 'Distance (km)',
+  energy: 'Energy Saved (kWh)',
+  waste: 'Amount (kg)',
+  water: 'Amount (L)'
+};
+
+export const ActivityModal = ({ onClose, onSubmit }) => {
   const [formData, setFormData] = useState({
     activityType: '',
     subType: '',
@@ -12,53 +42,14 @@ const ActivityModal = ({ onClose, onSubmit }) => {
     energyAmount: 0
   });
 
-  const getSubTypes = (activityType) => {
-    switch (activityType) {
-      case 'water':
-        return [
-          { value: 'shortShower', label: '🚿 Short Shower (5 mins)' },
-          { value: 'bucketWash', label: '🪣 Bucket vs Hose' },
-          { value: 'rainwater', label: '☔ Rainwater Collection' }
-        ];
-      case 'transport':
-        return [
-          { value: 'walk', label: '🚶 Walking' },
-          { value: 'bike', label: '🚲 Cycling' },
-          { value: 'bus', label: '🚌 Bus' },
-          { value: 'train', label: '🚂 Train' }
-        ];
-      case 'energy':
-        return [
-          { value: 'electricity', label: '💡 Electricity' },
-          { value: 'naturalGas', label: '🔥 Natural Gas' }
-        ];
-      case 'waste':
-        return [
-          { value: 'plastic', label: '♻️ Plastic Recycling' },
-          { value: 'paper', label: '📄 Paper Recycling' },
-          { value: 'glass', label: '🍶 Glass Recycling' }
-        ];
-      default:
-        return [];
-    }
-  };
-
-  const getValueLabel = (activityType) => {
-    switch (activityType) {
-      case 'transport': return 'Distance (km)';
-      case 'energy': return 'Energy Saved (kWh)';
-      case 'waste': return 'Amount (kg)';
-      case 'water': return 'Amount (L)';
-      default: return 'Value';
-    }
-  };
+  const getSubTypes = (activityType) => activitySubTypes[activityType] || [];
+  const getValueLabel = (activityType) => activityLabels[activityType] || 'Value';
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => {
       const newData = { ...prev, [name]: value };
-      
-      // Calculate impact when all required fields are filled
+
       if (newData.activityType && newData.subType && newData.value) {
         const details = getActivityDetails(
           newData.activityType,
@@ -68,19 +59,19 @@ const ActivityModal = ({ onClose, onSubmit }) => {
         newData.impact = details.co2Saved;
         newData.energyAmount = details.energySaved;
       }
-      
+
       return newData;
     });
   };
 
   const handleSubmit = () => {
     if (formData.activityType && formData.subType && formData.value) {
-      const description = `${formData.value} ${formData.activityType === 'transport' ? 'km' : 
-        formData.activityType === 'energy' ? 'kWh' : 
+      const description = `${formData.value} ${formData.activityType === 'transport' ? 'km' :
+        formData.activityType === 'energy' ? 'kWh' :
         formData.activityType === 'waste' ? 'kg' : 'L'} - ${
         getSubTypes(formData.activityType).find(st => st.value === formData.subType)?.label
       }`;
-      
+
       onSubmit({
         ...formData,
         description: formData.description || description
@@ -92,7 +83,7 @@ const ActivityModal = ({ onClose, onSubmit }) => {
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl p-6 max-w-md w-full shadow-2xl">
         <h2 className="text-2xl font-bold text-emerald-600 mb-6">Log Your Eco Activity</h2>
-        
+
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -180,5 +171,3 @@ const ActivityModal = ({ onClose, onSubmit }) => {
     </div>
   );
 };
-
-export default ActivityModal;

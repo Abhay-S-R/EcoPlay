@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Leaf, TreePine, Globe, Users, Badge, CheckCircle, Moon, Sun } from 'lucide-react';
+import { Leaf, Moon, Sun, TreePine, Globe, Users, Badge, CircleCheck as CheckCircle } from 'lucide-react';
 
 const FeatureCard = ({ icon, title, description }) => {
   const darkMode = document.documentElement.classList.contains('dark');
   return (
     <div className={`${
-      darkMode 
-        ? 'bg-gray-800/95 hover:bg-gray-700/95 border-gray-700' 
+      darkMode
+        ? 'bg-gray-800/95 hover:bg-gray-700/95 border-gray-700'
         : 'bg-white/95 hover:bg-gray-50/95 border-emerald-100'
     } backdrop-blur-sm rounded-xl shadow-lg p-8 transform hover:scale-105 transition-all duration-200 hover:shadow-xl border`}>
       <div className="text-emerald-500 mb-4">{icon}</div>
@@ -17,7 +17,7 @@ const FeatureCard = ({ icon, title, description }) => {
   );
 };
 
-const HomePage = () => {
+const Home = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleDarkMode = () => {
@@ -82,6 +82,7 @@ const HomePage = () => {
               Gamified sustainability that makes a real difference
             </p>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               icon={<TreePine className="h-8 w-8" />}
@@ -138,6 +139,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
-
-
+export default Home;

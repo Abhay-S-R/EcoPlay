@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { ArrowLeft, ShoppingCart, Crown, Star, Lock, Check, Zap, Sparkles } from 'lucide-react';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-case-declarations */
+import { useState, useEffect, useRef } from 'react';
+import { ArrowLeft, ShoppingCart, Crown, Star,Check, Sparkles } from 'lucide-react';
 import * as THREE from 'three';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTreeContext } from '../../context/TreeContext';
-import { loadUserData, saveUserData } from '../../utils/storage'; // update import
+import { loadUserData, saveUserData } from '../../utils/storage'; 
 import { treeData, rarityColors, rarityBorders } from '../../utils/treeData';
 
-const EcoPlayShop = () => {
-  const navigate = useNavigate();
+const Shop = () => {
   const { addTree, refreshOwnedTrees } = useTreeContext();
   const [userPoints, setUserPoints] = useState(() => {
     const userData = loadUserData();
@@ -24,7 +25,6 @@ const EcoPlayShop = () => {
     return new Set([]);
   });
   const [selectedAvatar, setSelectedAvatar] = useState(null);
-  const [cart, setCart] = useState([]);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [notifications, setNotifications] = useState([]);
 
@@ -803,4 +803,4 @@ const Notification = ({ message, type = 'success' }) => {
   );
 };
 
-export default EcoPlayShop;
+export default Shop;

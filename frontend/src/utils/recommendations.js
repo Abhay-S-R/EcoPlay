@@ -1,5 +1,5 @@
 // Import tasks from the shared location
-import { DAILY_TASKS } from '../pages/dashboard/index';
+import { dailyTasks } from '../data/constants';
 
 // A comprehensive list of all possible recommendations
 const allRecommendations = [
@@ -53,7 +53,7 @@ const allRecommendations = [
     condition: (userData) => {
       const today = new Date().toISOString().split('T')[0];
       const todayData = userData.dailyData.find(day => day.date === today);
-      return !todayData || (todayData.tasksCompleted?.length || 0) < DAILY_TASKS.length;
+      return !todayData || (todayData.tasksCompleted?.length || 0) < dailyTasks.length;
     }
   }
 ];
@@ -73,7 +73,7 @@ const hasRecentActivity = (userData, category, days) => {
     
     // Check completed daily tasks
     const hasTask = (day.tasksCompleted || []).some(taskId => {
-        const task = DAILY_TASKS.find(t => t.id === taskId);
+        const task = dailyTasks.find(t => t.id === taskId);
         return task && task.category === category;
     });
     if (hasTask) return true;

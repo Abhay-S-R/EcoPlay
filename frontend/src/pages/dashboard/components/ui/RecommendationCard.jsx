@@ -1,6 +1,4 @@
-import React from 'react';
-
-const RecommendationCard = ({ icon, title, description }) => (
+export const RecommendationCard = ({ icon, title, description }) => (
   <div className="flex items-start gap-3 p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded-r-lg">
     <div className="text-xl">{icon}</div>
     <div>
@@ -9,7 +7,3 @@ const RecommendationCard = ({ icon, title, description }) => (
     </div>
   </div>
 );
-
-export default RecommendationCard;
-
-

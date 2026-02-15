@@ -1,12 +1,11 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { useTreeContext } from '../context/TreeContext';
-import { getAllTrees, getTreeById } from '../utils/treeData';
+/* eslint-disable no-case-declarations */
+import { useRef, useEffect, useState } from 'react';
+import { getAllTrees} from '../utils/treeData';
 import { loadUserData } from '../utils/storage';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 const TreeSelector = ({ onSelect, onClose }) => {
-  const { refreshOwnedTrees } = useTreeContext();
   const previewRefs = useRef([]);
   const scenesRef = useRef([]); // Store scene references
 
@@ -18,6 +17,7 @@ const TreeSelector = ({ onSelect, onClose }) => {
         return userData.shopOwnedAvatars;
       }
       return [1]; // Default to sapling
+    // eslint-disable-next-line no-unused-vars
     } catch (error) {
       return [1];
     }
@@ -526,6 +526,7 @@ const TreeSelector = ({ onSelect, onClose }) => {
 
     // Cleanup on unmount
     return cleanup;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isInitialized, availableTrees.length]); // Only depend on length to avoid unnecessary re-renders
 
   if (availableTrees.length === 0) {

@@ -1,4 +1,3 @@
-import React from 'react';
 import { CircleCheck as CheckCircle, Circle } from 'lucide-react';
 
 export const TaskItem = ({ task, isCompleted, onToggle }) => {

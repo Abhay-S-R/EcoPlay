@@ -1,15 +1,16 @@
-import React, { useRef, useState, useEffect } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-case-declarations */
+import { useRef, useState, useEffect } from 'react';
 import * as THREE from 'three';
 import { useTreeContext } from '../../context/TreeContext';
 import TreeSelector from '../../components/TreeSelector';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { ArrowLeft, Home, Sparkles, Crown, TreePine, Plus, Trash2, Eye, RotateCw } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { ArrowLeft, Plus, Trash2} from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getTreeById } from '../../utils/treeData';
 import { saveGardenData, loadGardenData } from '../../utils/gardenStorage';
 
-const EcoGarden3D = () => {
-  const navigate = useNavigate();
+const Garden = () => {
   const mountRef = useRef(null);
   const sceneRef = useRef(new THREE.Scene());
   const rendererRef = useRef(null);
@@ -23,7 +24,6 @@ const EcoGarden3D = () => {
   const [placedTrees, setPlacedTrees] = useState([]);
   const [treeCount, setTreeCount] = useState(0);
   const [isLoadingGarden, setIsLoadingGarden] = useState(true);
-  const [selectedTreeForDeletion, setSelectedTreeForDeletion] = useState(null);
 
   // Get the TreeContext to refresh owned trees
   const { refreshOwnedTrees } = useTreeContext();
@@ -31,7 +31,6 @@ const EcoGarden3D = () => {
   // Refresh owned trees when component mounts
   useEffect(() => {
     refreshOwnedTrees();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createTreeMesh = (treeType) => {
@@ -419,11 +418,6 @@ const EcoGarden3D = () => {
     return treeGroup;
   };
 
-  const getTreeColor = (treeId) => {
-    const treeData = getTreeById(treeId);
-    return treeData ? treeData.gardenColor : 0x2d5a27; // fallback to dark green
-  };
-
   const handleDeleteTree = (treeId) => {
     const treeToDelete = placedTrees.find(tree => tree.id === treeId);
     if (treeToDelete) {
@@ -632,7 +626,7 @@ const EcoGarden3D = () => {
       return;
     }
 
-    const { trees: savedTrees, treeCount: savedCount } = loadGardenData();
+    const { trees: savedTrees } = loadGardenData();
 
     placedTrees.forEach(tree => {
       if (tree.mesh && sceneRef.current) {
@@ -771,4 +765,4 @@ const EcoGarden3D = () => {
   );
 };
 
-export default EcoGarden3D;
+export default Garden;

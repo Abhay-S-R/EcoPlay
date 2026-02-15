@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { Leaf, TrendingUp, Calendar, CheckCircle, Target, Award, BarChart3, Clock, Flame, Star, ArrowLeft } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Leaf, CheckCircle, Target, Award, BarChart3, Flame, Star, ArrowLeft } from 'lucide-react';
 import { loadUserData } from '../../utils/storage';
 import { useNavigate } from 'react-router-dom';
 
-const StatsPage = () => {
+const Stats = () => {
   const navigate = useNavigate();
   
   const [userData, setUserData] = useState(() => {
@@ -20,10 +20,6 @@ const StatsPage = () => {
       achievements: raw.achievements || [],
       shopOwnedAvatars: raw.shopOwnedAvatars || []
     };
-
-    // Get today's tasks
-    const today = new Date().toISOString().split('T')[0];
-    const todayData = savedData.dailyData.find(day => day.date === today) || { tasksCompleted: [] };
     
     // Calculate tasks stats
     const weekStart = new Date();
@@ -37,9 +33,6 @@ const StatsPage = () => {
 
     const monthlyTasks = savedData.dailyData
       .filter(day => new Date(day.date) >= monthStart)
-      .reduce((sum, day) => sum + (day.tasksCompleted?.length || 0), 0);
-
-    const totalTasks = savedData.dailyData
       .reduce((sum, day) => sum + (day.tasksCompleted?.length || 0), 0);
 
     // Calculate category statistics from activities
@@ -93,7 +86,6 @@ const StatsPage = () => {
       const dateString = targetDate.toISOString().split('T')[0];
 
       const dayData = savedData.dailyData.find(day => day.date === dateString);
-      const hasActivity = dayData && (dayData.activities?.length > 0 || dayData.tasksCompleted?.length > 0);
       const activitiesCount = dayData ? (dayData.activities?.length || 0) + (dayData.tasksCompleted?.length || 0) : 0;
 
       // Scale: 0 activities = 0%, 1-2 = 40%, 3-4 = 70%, 5+ = 100%
@@ -496,7 +488,7 @@ const StatsCard = ({ value, label, color, icon }) => {
 };
 
 // Category Stats Bar Component
-const CategoryStatsBar = ({ category, completed, points, total }) => {
+const CategoryStatsBar = ({ category, completed, points}) => {
   const categoryIcons = {
     transport: '🚗',
     energy: '⚡',
@@ -560,4 +552,4 @@ const QuickStatItem = ({ icon, label, value }) => (
   </div>
 );
 
-export default StatsPage;
+export default Stats;
