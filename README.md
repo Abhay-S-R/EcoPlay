@@ -6,7 +6,7 @@ EcoPlay is a gamified web application that turns your everyday eco-friendly acti
 
 EcoPlay is designed to make sustainable living fun and engaging. By gamifying eco-friendly actions, we aim to motivate users to adopt more sustainable habits. The core idea is that every positive action you take for the environment, no matter how small, contributes to a larger positive impact. In EcoPlay, these actions are rewarded with points that can be used to purchase and grow a variety of virtual trees in your own personal garden, providing a visual representation of your positive environmental contributions.
 
-## Key Features ✨
+## Key Features
 
   * **🏡 Virtual Garden:** A 3D interactive garden where you can plant and grow a variety of trees, each unlocked through your eco-friendly actions.
   * **📝 Daily Tasks & Activities:** Log your daily eco-friendly activities, such as using reusable water bottles, taking public transport, and conserving energy, to earn points.
@@ -15,6 +15,10 @@ EcoPlay is designed to make sustainable living fun and engaging. By gamifying ec
   * **🛍️ Tree Shop:** Use your earned EcoPoints to purchase new and rare tree avatars to add to your virtual garden.
   * **🌗 Dark/Light Mode:** A sleek and modern UI with a toggle for dark and light modes.
   * **⚙️ Customizable Settings:** Personalize your experience with settings for measurement units (metric/imperial).
+
+## Live Demo
+
+**Try it out:** [https://ecoplay-app.netlify.app/](https://ecoplay-app.netlify.app/)
 
 ## Built With
 
@@ -62,62 +66,4 @@ To run the project in development mode, use the following command:
 
 ```sh
 npm run dev
-```
-
-This will start the development server, and you can view the application in your browser at `http://localhost:5173` (or the next available port).
-
-To create a production build of the application, use:
-
-```sh
-npm run build
-```
-
-This will generate a `dist` folder with the optimized and minified production-ready files.
-
-## Project Structure
-
-The project follows a standard React application structure:
-
-```
-frontend/
-├── public/
-│   └── vite.svg
-├── src/
-│   ├── assets/
-│   ├── components/
-│   │   ├── modals/
-│   │   ├── ui/
-│   │   ├── Dashboard.jsx
-│   │   ├── HomePage.jsx
-│   │   └── TreeSelector.jsx
-│   ├── context/
-│   │   └── TreeContext.jsx
-│   ├── data/
-│   │   └── constants.js
-│   ├── pages/
-│   │   ├── base/
-│   │   ├── dashboard/
-│   │   ├── home/
-│   │   ├── shop/
-│   │   └── stats/
-│   ├── utils/
-│   │   ├── achievements.js
-│   │   ├── co2Calculator.js
-│   │   ├── dateHelpers.js
-│   │   ├── gardenStorage.js
-│   │   ├── recommendations.js
-│   │   ├── storage.js
-│   │   ├── treeData.js
-│   │   └── unitConverter.js
-│   ├── App.jsx
-│   ├── index.css
-│   └── main.jsx
-├── .gitignore
-├── eslint.config.js
-├── index.html
-├── netlify.toml
-├── package.json
-├── postcss.config.js
-├── tailwind.config.js
-└── vite.config.js
 ```
